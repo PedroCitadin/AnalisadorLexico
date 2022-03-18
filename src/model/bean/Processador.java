@@ -17,6 +17,7 @@ public class Processador {
         Stack<String> pilhaLinhas = new Stack<String>();
         Stack<String> pilhaAuxiliar = new Stack<String>();
         Queue<Character> filaCaracteres = new LinkedList<>();
+        Queue<Character> filaCaracteresAuxiliar = new LinkedList<>();
         for (String l : linhas) {
             pilhaLinhas.add(l);
 
@@ -27,9 +28,43 @@ public class Processador {
             for (Character c : s.toCharArray()) {
                 filaCaracteres.add(c);
             }
+            filaCaracteresAuxiliar.clear();
+            filaCaracteresAuxiliar.addAll(filaCaracteres);
             do {
-                
-                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'")) {
+                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
+                    filaCaracteresAuxiliar.clear();
+                    filaCaracteresAuxiliar.addAll(filaCaracteres);
+                    System.out.println("aqui!!!!");
+                    aux += String.valueOf(filaCaracteresAuxiliar.poll());
+                    System.out.println(aux);
+                    if (String.valueOf(filaCaracteresAuxiliar.peek()).equalsIgnoreCase("*")) {
+                        aux+=filaCaracteres.poll();
+                        System.out.println(filaCaracteres.poll());
+                        
+                        
+                        
+                        
+                        while(!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")){
+                        aux+=String.valueOf(filaCaracteres.poll());
+                        
+                        }
+                        aux+=String.valueOf(filaCaracteres.poll());
+                        aux+=String.valueOf(filaCaracteres.poll());
+                        
+                        System.out.println("aqui: "+aux);
+                        aux="";
+                    }else{
+                        aux="";
+                        if (tabela.containsKey(String.valueOf(filaCaracteres.peek()).toUpperCase())) {
+                            aux+=String.valueOf(filaCaracteres.poll()).toUpperCase();
+                            pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase()));
+                            aux="";
+                        }
+                    }
+                    aux = "";
+                    filaCaracteresAuxiliar.clear();
+                    filaCaracteresAuxiliar.addAll(filaCaracteres);
+                }else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'")) {
                     aux += String.valueOf(filaCaracteres.poll());
                     while(!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'")){
                         aux+=String.valueOf(filaCaracteres.poll());
@@ -108,6 +143,7 @@ public class Processador {
             }while(!filaCaracteres.isEmpty());
 
             filaCaracteres.clear();
+            filaCaracteresAuxiliar.clear();
         }
 
     }
