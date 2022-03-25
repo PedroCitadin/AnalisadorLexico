@@ -142,11 +142,30 @@ public class TelaPrincipal extends JFrame {
         salvarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/salvarArquivo.png")));
         salvarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                try {
-                    arq.reescreveNoArquivo(arq, txtCodigo.getText());
-                } catch (IOException ex) {
-                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                if (arq.getNome()!=null) {
+                    try {
+                        arq.reescreveNoArquivo(arq, txtCodigo.getText());
+                    } catch (IOException ex) {
+                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    String aux = JOptionPane.showInputDialog("Informe o nome do arquivo");
+                    if (!aux.equalsIgnoreCase("")) {
+                        arq.setNome(aux);
+
+                        dc.showDialog(getContentPane(), "Selecionar Diretório");
+                        if (!dc.getSelectedFile().getParent().isEmpty()) {
+                            arq.setEndereco(dc.getSelectedFile().getPath());
+                            try {
+                                arq.criaArquivo(arq);
+                            } catch (IOException ex) {
+                                Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            txtCodigo.setText("");
+                        }
+                    }
                 }
+
             }
         });
 
