@@ -24,8 +24,10 @@ import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import model.bean.Arquivo;
+import model.bean.Erro;
 import model.bean.Processador;
 import model.bean.Token;
+import model.util.NumeredBorder;
 import model.util.TokenTableModel;
 
 /**
@@ -38,6 +40,7 @@ public class TelaPrincipal extends JFrame {
     private JTextArea txtCodigo;
     private JTable tabelaTokens;
     private JScrollPane sPane;
+    private JScrollPane sPaneCodigo;
     private JButton novoArquivo;
     private JButton carregarArquivo;
     private JButton salvarArquivo;
@@ -52,7 +55,7 @@ public class TelaPrincipal extends JFrame {
     private List<String> linhas;
 
     public TelaPrincipal() {
-        this.setSize(1215, 840);
+        this.setSize(1215, 930);
         setResizable(false);
         setTitle("Analisador Léxico");
         setLayout(null);
@@ -78,7 +81,13 @@ public class TelaPrincipal extends JFrame {
 
         txtCodigo = new JTextArea();
         txtCodigo.setBounds(5, 62, 590, 740);
-        getContentPane().add(txtCodigo);
+        txtCodigo.setBorder(new NumeredBorder());
+        
+        sPaneCodigo = new JScrollPane(txtCodigo);
+        sPaneCodigo.setBounds(5, 62, 595, 740);
+        
+        getContentPane().add(sPaneCodigo);
+        
         TokenTableModel ttm = new TokenTableModel();
         tabelaTokens = new JTable(ttm);
         tabelaTokens.setBounds(605, 62, 590, 740);
@@ -87,7 +96,7 @@ public class TelaPrincipal extends JFrame {
 
         getContentPane().add(sPane);
         barraMenu = new JMenuBar();
-        barraMenu.setBounds(0, 0, 1215, 60);
+        barraMenu.setBounds(0, 0, 1215, 50);
 
         novoArquivo = new JButton();
         novoArquivo.setPreferredSize(new Dimension(50, 50));
@@ -190,13 +199,18 @@ public class TelaPrincipal extends JFrame {
                     linhas.add(array[i]);
                 }
                 pilhaFinal.clear();
-                Processador.processa(pilhaFinal, linhas, map);
-                ttm.limpar();
+                Erro erro = Processador.processa(pilhaFinal, linhas, map);
+                if (!erro.isStatus()) {
+                    ttm.limpar();
 
                 for (Token t : pilhaFinal) {
                     ttm.addToken(t);
                 }
                 tabelaTokens.setModel(ttm);
+                }else{
+                    ttm.limpar();
+                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
+                }
             }
         });
 

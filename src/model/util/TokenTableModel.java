@@ -13,7 +13,7 @@ import model.bean.Token;
 public class TokenTableModel extends AbstractTableModel {
         private List<Token> tokens;
      private String[] colunas = new String[]{
-        "Código","Palavra"};
+        "Código","Palavra", "Linha"};
 
     /** Creates a new instance of DevmediaTableModel */
     public TokenTableModel(List<Token> tokens) {
@@ -48,10 +48,11 @@ public class TokenTableModel extends AbstractTableModel {
 
         token.setCod(aValue.getCod());
         token.setSimbolo(aValue.getSimbolo());
-        
+        token.setLinha(aValue.getLinha());
 
         fireTableCellUpdated(rowIndex, 0);
         fireTableCellUpdated(rowIndex, 1);
+        fireTableCellUpdated(rowIndex, 2);
         
 
     }
@@ -80,7 +81,7 @@ public class TokenTableModel extends AbstractTableModel {
         switch(columnIndex){
             case 0: valueObject = String.valueOf(tokenSelecionado.getCod()); break;
             case 1: valueObject = tokenSelecionado.getSimbolo(); break;
-            
+            case 2: valueObject = String.valueOf(tokenSelecionado.getLinha()); break;
             default: System.err.println("Índice inválido para propriedade do bean Usuario.class");
         }
 

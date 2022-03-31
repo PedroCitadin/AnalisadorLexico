@@ -12,7 +12,23 @@ public class Token {
 
     private int cod;
     private String simbolo;
+    private int linha;
 
+    public Token(int cod, String simbolo, int linha) {
+        this.cod = cod;
+        this.simbolo = simbolo;
+        this.linha = linha;
+    }
+
+    public int getLinha() {
+        return linha;
+    }
+
+    public void setLinha(int linha) {
+        this.linha = linha;
+    }
+    
+    
     public int getCod() {
         return cod;
     }
