@@ -104,7 +104,7 @@ public class TelaPrincipal extends JFrame {
         novoArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 String aux = JOptionPane.showInputDialog("Informe o nome do arquivo");
-                if (!aux.equalsIgnoreCase("")) {
+                if (aux!=null&&!aux.equalsIgnoreCase("")) {
                     arq.setNome(aux);
 
                     dc.showDialog(getContentPane(), "Selecionar Diretório");
@@ -127,7 +127,7 @@ public class TelaPrincipal extends JFrame {
         carregarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 fc.showDialog(getContentPane(), "Selecionar Arquivo");
-
+                try{
                 arq.setEndereco(fc.getSelectedFile().getParent());
                 arq.setNome(fc.getSelectedFile().getName());
                 try {
@@ -142,7 +142,9 @@ public class TelaPrincipal extends JFrame {
                 } catch (IOException ex) {
                     Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
+                }catch (java.lang.NullPointerException e){
+                    
+                }
             }
         });
 
@@ -151,6 +153,9 @@ public class TelaPrincipal extends JFrame {
         salvarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/salvarArquivo.png")));
         salvarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                try{
+                    
+                
                 if (arq.getNome()!=null) {
                     try {
                         arq.reescreveNoArquivo(arq, txtCodigo.getText());
@@ -173,6 +178,9 @@ public class TelaPrincipal extends JFrame {
                             txtCodigo.setText("");
                         }
                     }
+                }
+                }catch (java.lang.NullPointerException e) {
+                    
                 }
 
             }
