@@ -17,6 +17,7 @@ public class Processador {
         int linhaAtual = 0;
         Stack<String> pilhaLinhas = new Stack<String>();
         Stack<String> pilhaAuxiliar = new Stack<String>();
+        Stack<Token> pilhaAuxiliar2 = new Stack<Token>();
         Queue<Character> filaCaracteres = new LinkedList<>();
         Queue<Character> filaCaracteresAuxiliar = new LinkedList<>();
         for (String l : linhas) {
@@ -64,16 +65,17 @@ public class Processador {
                     aux = "";
                     filaCaracteresAuxiliar.clear();
                     filaCaracteresAuxiliar.addAll(filaCaracteres);
-                } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'")) {
+                } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") || String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
+
                     aux += String.valueOf(filaCaracteres.poll());
-                    while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'")) {
+                    while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") && !String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
                         aux += String.valueOf(filaCaracteres.poll());
 
                     }
                     aux += String.valueOf(filaCaracteres.poll());
-                    if (aux.length()<=255) {
+                    if (aux.length() <= 255) {
                         pilhaFinal.add(new Token(48, aux, linhaAtual));
-                    }else{
+                    } else {
                         return new Erro(true, "Literal não pode conter mais de 255 caracteres", linhaAtual);
                     }
                     aux = "";
@@ -208,6 +210,41 @@ public class Processador {
 
             filaCaracteres.clear();
             filaCaracteresAuxiliar.clear();
+        }
+        String verificador = "";
+       
+        for (Token t : pilhaFinal) {
+            
+            if (!pilhaFinal.empty()) {
+                
+                if (t.getCod() == 26) {
+                    if (verificador.equalsIgnoreCase("ab")) {
+                        
+                        verificador += "c";
+                    }else if(verificador.equalsIgnoreCase("")){
+                         verificador += "a";
+                    }else {
+                        verificador = "";
+                    }
+                   
+                   
+
+                }
+                if (t.getCod() == 49) { 
+                    
+                    if (verificador.equalsIgnoreCase("a")) {
+                        
+                        verificador += "b";
+                    }else{
+                        verificador = "";
+                    }
+                }
+                if (verificador.equalsIgnoreCase("abc")) {
+                    System.out.println("aqui");
+                    return new Erro(true, "Apenas números inteiros são aceitos", t.getLinha());
+                }
+
+            }
         }
         return new Erro(false);
     }
