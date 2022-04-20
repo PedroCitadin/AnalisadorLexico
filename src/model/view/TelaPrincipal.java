@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,20 +42,26 @@ public class TelaPrincipal extends JFrame {
     private JTextArea txtCodigo;
     private JTable tabelaTokens;
     private JScrollPane sPane;
+    private JTable tabelaTokensNaoTerminais;
+    private JScrollPane sPaneNaoTerminal;
     private JScrollPane sPaneCodigo;
     private JButton novoArquivo;
     private JButton carregarArquivo;
     private JButton salvarArquivo;
     private JButton xArquivo;
     private JButton processarArquivo;
+    private JButton processarPasso;
+    private int contador;
     private JFileChooser fc;
     private JFileChooser dc;
     private Stack<Token> pilhaFinal;
+    
     private Token tokens;
-    HashMap<String, Integer> map;
+    
     private Arquivo arq;
     private List<String> linhas;
-
+    private Queue<Token> filaFinal;
+    private Queue<Token> filaNTerminais;
     public TelaPrincipal() {
         this.setSize(1215, 930);
         setResizable(false);
@@ -65,11 +73,14 @@ public class TelaPrincipal extends JFrame {
     }
 
     public void criaComponentes() {
+        contador = 0;
         arq = new Arquivo();
         tokens = new Token();
         pilhaFinal = new Stack<Token>();
-        map = new HashMap<String, Integer>();
-        tokens.implementaTabela(map);
+        filaFinal = new LinkedList<>();
+        filaNTerminais = new LinkedList<>();
+        
+        
         linhas = new ArrayList<String>();
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(false);
@@ -90,11 +101,20 @@ public class TelaPrincipal extends JFrame {
         
         TokenTableModel ttm = new TokenTableModel();
         tabelaTokens = new JTable(ttm);
-        tabelaTokens.setBounds(605, 62, 590, 740);
+        tabelaTokens.setBounds(605, 62, 590, 400);
         sPane = new JScrollPane(tabelaTokens);
-        sPane.setBounds(605, 62, 595, 740);
+        sPane.setBounds(605, 62, 595, 400);
 
         getContentPane().add(sPane);
+        
+        
+        TokenTableModel ttm2 = new TokenTableModel();
+        tabelaTokensNaoTerminais = new JTable(ttm2);
+        tabelaTokensNaoTerminais.setBounds(605, 480, 590, 400);
+        sPaneNaoTerminal = new JScrollPane(tabelaTokensNaoTerminais);
+        sPaneNaoTerminal.setBounds(605, 480, 595, 400);
+
+        getContentPane().add(sPaneNaoTerminal);
         barraMenu = new JMenuBar();
         barraMenu.setBounds(0, 0, 1215, 50);
 
@@ -200,6 +220,10 @@ public class TelaPrincipal extends JFrame {
         processarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarArquivo.png")));
         processarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                
+                tabelaTokens.setModel(ttm);
+                ttm.limpar();
+               
                 String array[] = txtCodigo.getText().split("\n");
                 linhas.clear();
                 for (int i = 0; i < array.length; i++) {
@@ -207,13 +231,14 @@ public class TelaPrincipal extends JFrame {
                     linhas.add(array[i]);
                 }
                 pilhaFinal.clear();
-                Erro erro = Processador.processa(pilhaFinal, linhas, map);
+                Erro erro = Processador.analisadorLexico(pilhaFinal, linhas);
                 if (!erro.isStatus()) {
                     ttm.limpar();
-
-                for (Token t : pilhaFinal) {
+                filaFinal.addAll(pilhaFinal);
+                for (Token t : filaFinal) {
                     ttm.addToken(t);
                 }
+                
                 tabelaTokens.setModel(ttm);
                 }else{
                     ttm.limpar();
@@ -221,12 +246,40 @@ public class TelaPrincipal extends JFrame {
                 }
             }
         });
-
+        
+        processarPasso = new JButton();
+        processarPasso.setPreferredSize(new Dimension(50, 50));
+        processarPasso.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
+        processarPasso.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                if (filaNTerminais.isEmpty()) {
+                    filaNTerminais.add(new Token(52, "PROGRAMA"));
+                }
+                HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
+                
+                Erro erro = Processador.analisadorSemantico(filaFinal, filaNTerminais);
+                ttm.limpar();
+                for (Token t : filaFinal) {
+                    ttm.addToken(t);
+                }
+                tabelaTokens.setModel(ttm);
+                
+                ttm2.limpar();
+                for (Token t : filaNTerminais) {
+                    ttm2.addToken(t);
+                }
+                tabelaTokensNaoTerminais.setModel(ttm2);
+                
+            }
+        });
+        
         barraMenu.add(novoArquivo);
         barraMenu.add(carregarArquivo);
         barraMenu.add(salvarArquivo);
         barraMenu.add(xArquivo);
         barraMenu.add(processarArquivo);
+        barraMenu.add(processarPasso);
+        
         getContentPane().add(barraMenu);
     }
 
