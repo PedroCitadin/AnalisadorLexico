@@ -18,6 +18,7 @@ public class Processador {
     
     public static Erro analisadorLexico(Stack<Token> pilhaFinal, List<String> linhas) {
         int linhaAtual = 0;
+        boolean auxComent = false;
         Stack<String> pilhaLinhas = new Stack<String>();
         Stack<String> pilhaAuxiliar = new Stack<String>();
         Stack<Token> pilhaAuxiliar2 = new Stack<Token>();
@@ -38,7 +39,22 @@ public class Processador {
             filaCaracteresAuxiliar.clear();
             filaCaracteresAuxiliar.addAll(filaCaracteres);
             do {
+                if (auxComent) {
+                    while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
+                            aux += String.valueOf(filaCaracteres.poll());
+                            if (filaCaracteres.peek()==null) {
+                                auxComent = true;
+                                break;
+                            }
+                        }
+                        if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
+                            auxComent = false;
+                        }
+                        aux += String.valueOf(filaCaracteres.poll());
+                        aux += String.valueOf(filaCaracteres.poll());
 
+                        aux = "";
+                }
                 if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
                     filaCaracteresAuxiliar.clear();
                     filaCaracteresAuxiliar.addAll(filaCaracteres);
@@ -51,7 +67,10 @@ public class Processador {
 
                         while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
                             aux += String.valueOf(filaCaracteres.poll());
-
+                            if (filaCaracteres.peek()==null) {
+                                auxComent = true;
+                                break;
+                            }
                         }
                         aux += String.valueOf(filaCaracteres.poll());
                         aux += String.valueOf(filaCaracteres.poll());

@@ -19,6 +19,10 @@ import sun.misc.IOUtils;
 /**
  *
  * @author Pedro Citadin Coelho
+ * 
+ * 
+ * Classe de manipulação de arquivos feita por Pedro Citadin Coelho
+ * 
  */
 public class Arquivo {
 

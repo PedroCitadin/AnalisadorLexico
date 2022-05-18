@@ -5,6 +5,9 @@ package model.bean;
  *
  * @author Pedro Citadin Coelho
  */
+
+
+///// classe para tratamento de erros
 public class Erro {
     private boolean status;
     private String causa;

@@ -211,7 +211,7 @@ public class TelaPrincipal extends JFrame {
         xArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/xArquivo.png")));
         xArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                ////
+                ttm.limpar();
             }
         });
 
@@ -230,7 +230,9 @@ public class TelaPrincipal extends JFrame {
 
                     linhas.add(array[i]);
                 }
+                ////correção feita 18/05/2022
                 pilhaFinal.clear();
+                filaFinal.clear();
                 Erro erro = Processador.analisadorLexico(pilhaFinal, linhas);
                 if (!erro.isStatus()) {
                     ttm.limpar();
