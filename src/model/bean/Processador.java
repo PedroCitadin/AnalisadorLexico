@@ -220,13 +220,14 @@ public class Processador {
                                 aux = aux.replaceAll(" ", "");
                                 
                                 if (tabela.containsKey(aux.toUpperCase())) {
-                                    
-                                    if (Token.simbolosDelimitadores().contains(String.valueOf(filaCaracteres.peek()))||filaCaracteres.peek()==null) {
+                                    System.out.println(aux);
+                                    if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek()))||filaCaracteres.peek()==null) {
+                                        
                                         pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
                                         aux = "";
                                     }
                                     
-                                } else if (filaCaracteres.isEmpty()) {
+                                } else if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek()))||filaCaracteres.isEmpty()) {
                                     if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
                                         
                                         try {

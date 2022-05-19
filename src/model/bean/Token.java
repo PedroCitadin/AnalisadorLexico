@@ -95,7 +95,7 @@ public class Token {
         tokens.put("BEGIN", 6);
         tokens.put("UNTIL", 19);
         tokens.put("*", 32);
-        tokens.put("<", 45);
+        tokens.put("<>", 45);
         tokens.put("END", 7);
         tokens.put("READLN", 20);
         tokens.put("/", 33);
@@ -141,7 +141,7 @@ public class Token {
     }
     public static List<String> operadoresRelacionais() {
         List<String> palavras = new ArrayList<String>();
-        String p[] = {"=", "<", ">", ":=", ">=", "<="};
+        String p[] = {"=", "<", ">", "<>", ">=", "<="};
         palavras.addAll(Arrays.asList(p));
         return palavras;
     }
@@ -154,13 +154,22 @@ public class Token {
     }
     public static List<String> simbolosDelimitadores() {
         List<String> palavras = new ArrayList<String>();
-        String p[] = {":", ",", ".", "(", ")", ":", "..", "[", "]", "´", "\n", " ", null};
+        String p[] = {":",";", ",", ".", "(", ")", ":", "..", "[", "]", "´", "\n", " ", null};
         palavras.addAll(Arrays.asList(p));
         return palavras;
     }
     public static boolean verificaSimboloDelimitador(String palavra){
             for (String sim : simbolosDelimitadores()) {
                 if (palavra.contains(sim)) {
+                    return true;
+                }
+            }
+        return false;
+        
+    }
+    public static boolean verificaSimboloDelimitadorIgual(String palavra){
+            for (String sim : simbolosDelimitadores()) {
+                if (palavra.equalsIgnoreCase(sim)) {
                     return true;
                 }
             }
