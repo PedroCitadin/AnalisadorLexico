@@ -1,6 +1,7 @@
 package model.bean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,8 +13,13 @@ import java.util.Stack;
  * @author Pedro Citadin Coelho
  */
 public class Processador {
+
     private static final HashMap<String, Integer> tabela = Token.implementaTabela();
     private static final HashMap<String, Integer> tabelaNaoTerminais = Token.implementaNaoTerminais();
+    private static final List<String> palavrasReservadas = Token.palavrasReservadas();
+    private static final List<String> simbolosEspeciais = Token.simbolosEspeciais();
+    private static final List<String> operadoresAritimeticos = Token.operadoresAritimeticos();
+    private static final List<String> operadoresRelacionais = Token.operadoresRelacionais();
     
     
     public static Erro analisadorLexico(Stack<Token> pilhaFinal, List<String> linhas) {
@@ -25,7 +31,11 @@ public class Processador {
         Queue<Character> filaCaracteres = new LinkedList<>();
         Queue<Character> filaCaracteresAuxiliar = new LinkedList<>();
         for (String l : linhas) {
-            pilhaLinhas.add(l);
+            
+                l = l.trim();
+                pilhaLinhas.add(l);
+            
+            
 
         }
         for (String s : pilhaLinhas) {
@@ -39,7 +49,9 @@ public class Processador {
             filaCaracteresAuxiliar.clear();
             filaCaracteresAuxiliar.addAll(filaCaracteres);
             do {
+                
                 if (auxComent) {
+                    ///comentário aberto
                     while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
                             aux += String.valueOf(filaCaracteres.poll());
                             if (filaCaracteres.peek()==null) {
@@ -54,14 +66,15 @@ public class Processador {
                         aux += String.valueOf(filaCaracteres.poll());
 
                         aux = "";
-                }
-                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
+                }else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
+                    ////verifica comentário
                     filaCaracteresAuxiliar.clear();
                     filaCaracteresAuxiliar.addAll(filaCaracteres);
 
                     aux += String.valueOf(filaCaracteresAuxiliar.poll());
 
                     if (String.valueOf(filaCaracteresAuxiliar.peek()).equalsIgnoreCase("*")) {
+                        ///pega comentario
                         aux += filaCaracteres.poll();
                         filaCaracteres.poll();
 
@@ -72,6 +85,7 @@ public class Processador {
                                 break;
                             }
                         }
+                        ///fecha comentário
                         aux += String.valueOf(filaCaracteres.poll());
                         aux += String.valueOf(filaCaracteres.poll());
 
@@ -88,7 +102,7 @@ public class Processador {
                     filaCaracteresAuxiliar.clear();
                     filaCaracteresAuxiliar.addAll(filaCaracteres);
                 } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") || String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
-
+                    ///verifica String
                     aux += String.valueOf(filaCaracteres.poll());
                     while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") && !String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
                         aux += String.valueOf(filaCaracteres.poll());
@@ -102,10 +116,12 @@ public class Processador {
                     }
                     aux = "";
                 } else {
+                        aux = aux.replaceAll("\\s", "");
                     if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase(" ")) {
                         filaCaracteres.poll();
+                       
                         if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-
+                            
                             try {
                                 Double.parseDouble(aux);
                                 if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
@@ -132,8 +148,10 @@ public class Processador {
                     } else {
                         if (!filaCaracteres.isEmpty()) {
                             aux2 = filaCaracteres.poll().toString();
-
+                            
                             if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+                                
+                                
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                     try {
@@ -162,7 +180,7 @@ public class Processador {
                                 pilhaFinal.add(new Token(tabela.get(aux2.toString().toUpperCase() + filaCaracteres.peek()), aux2.toString().toUpperCase() + filaCaracteres.peek(), linhaAtual));
                                 filaCaracteres.poll();
                             } else if (tabela.containsKey(aux2.toUpperCase())) {
-
+                                
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                     try {
@@ -188,16 +206,29 @@ public class Processador {
                                     }
                                     aux = "";
                                 }
-                                pilhaFinal.add(new Token(tabela.get(aux2.toUpperCase()), aux2.toUpperCase(), linhaAtual));
+                                if (aux2.equalsIgnoreCase("-")&&pilhaFinal.peek().getCod()!=26) {
+                                    aux+=aux2;
+                                }else{
+                                    pilhaFinal.add(new Token(tabela.get(aux2.toUpperCase()), aux2.toUpperCase(), linhaAtual));
+                                }
+                                
 
                             } else {
+                                
                                 aux += aux2.toString();
+                                
+                                aux = aux.replaceAll(" ", "");
+                                
                                 if (tabela.containsKey(aux.toUpperCase())) {
-                                    pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
-                                    aux = "";
+                                    
+                                    if (Token.simbolosDelimitadores().contains(String.valueOf(filaCaracteres.peek()))||filaCaracteres.peek()==null) {
+                                        pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
+                                        aux = "";
+                                    }
+                                    
                                 } else if (filaCaracteres.isEmpty()) {
                                     if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-
+                                        
                                         try {
                                             Double.parseDouble(aux);
                                             if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
@@ -270,102 +301,193 @@ public class Processador {
         }
         return new Erro(false);
     }
+
     public static Erro analisadorLexicoPasso(Stack<Token> pilhaFinal, String linha) {
         int linhaAtual = 0;
+        boolean auxComent = false;
         Stack<String> pilhaLinhas = new Stack<String>();
         Stack<String> pilhaAuxiliar = new Stack<String>();
         Stack<Token> pilhaAuxiliar2 = new Stack<Token>();
         Queue<Character> filaCaracteres = new LinkedList<>();
         Queue<Character> filaCaracteresAuxiliar = new LinkedList<>();
-        
-        
-            String aux = "";
-            String aux2 = "";
-            String aux3 = "";
-            for (Character c : linha.toCharArray()) {
-                filaCaracteres.add(c);
-            }
-            linhaAtual++;
-            filaCaracteresAuxiliar.clear();
-            filaCaracteresAuxiliar.addAll(filaCaracteres);
-            do {
 
-                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
-                    filaCaracteresAuxiliar.clear();
-                    filaCaracteresAuxiliar.addAll(filaCaracteres);
-
-                    aux += String.valueOf(filaCaracteresAuxiliar.poll());
-
-                    if (String.valueOf(filaCaracteresAuxiliar.peek()).equalsIgnoreCase("*")) {
-                        aux += filaCaracteres.poll();
-                        filaCaracteres.poll();
-
-                        while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
-                            aux += String.valueOf(filaCaracteres.poll());
-
-                        }
-                        aux += String.valueOf(filaCaracteres.poll());
-                        aux += String.valueOf(filaCaracteres.poll());
-
-                        aux = "";
-                    } else {
-                        aux = "";
-                        if (tabela.containsKey(String.valueOf(filaCaracteres.peek()).toUpperCase())) {
-                            aux += String.valueOf(filaCaracteres.poll()).toUpperCase();
-                            pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
-                            aux = "";
-                        }
-                    }
-                    aux = "";
-                    filaCaracteresAuxiliar.clear();
-                    filaCaracteresAuxiliar.addAll(filaCaracteres);
-                } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") || String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
-
+        String aux = "";
+        String aux2 = "";
+        String aux3 = "";
+        for (Character c : linha.toCharArray()) {
+            filaCaracteres.add(c);
+        }
+        linhaAtual++;
+        filaCaracteresAuxiliar.clear();
+        filaCaracteresAuxiliar.addAll(filaCaracteres);
+        do {
+            if (auxComent) {
+                ///comentário aberto
+                while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
                     aux += String.valueOf(filaCaracteres.poll());
-                    while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") && !String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
-                        aux += String.valueOf(filaCaracteres.poll());
+                    if (filaCaracteres.peek() == null) {
+                        auxComent = true;
+                        break;
+                    }
+                }
+                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
+                    auxComent = false;
+                }
+                aux += String.valueOf(filaCaracteres.poll());
+                aux += String.valueOf(filaCaracteres.poll());
 
+                aux = "";
+            } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
+                ////verifica comentário
+                filaCaracteresAuxiliar.clear();
+                filaCaracteresAuxiliar.addAll(filaCaracteres);
+
+                aux += String.valueOf(filaCaracteresAuxiliar.poll());
+
+                if (String.valueOf(filaCaracteresAuxiliar.peek()).equalsIgnoreCase("*")) {
+                    ///pega comentario
+                    aux += filaCaracteres.poll();
+                    filaCaracteres.poll();
+
+                    while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
+                        aux += String.valueOf(filaCaracteres.poll());
+                        if (filaCaracteres.peek() == null) {
+                            auxComent = true;
+                            break;
+                        }
                     }
+                    ///fecha comentário
                     aux += String.valueOf(filaCaracteres.poll());
-                    if (aux.length() <= 255) {
-                        pilhaFinal.add(new Token(48, aux, linhaAtual));
-                    } else {
-                        return new Erro(true, "Literal não pode conter mais de 255 caracteres", linhaAtual);
-                    }
+                    aux += String.valueOf(filaCaracteres.poll());
+
                     aux = "";
                 } else {
-                    if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase(" ")) {
-                        filaCaracteres.poll();
-                        if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
+                    aux = "";
+                    if (tabela.containsKey(String.valueOf(filaCaracteres.peek()).toUpperCase())) {
+                        aux += String.valueOf(filaCaracteres.poll()).toUpperCase();
+                        pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
+                        aux = "";
+                    }
+                }
+                aux = "";
+                filaCaracteresAuxiliar.clear();
+                filaCaracteresAuxiliar.addAll(filaCaracteres);
+            } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") || String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
+                ///verifica String
+                aux += String.valueOf(filaCaracteres.poll());
+                while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("'") && !String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("‘")) {
+                    aux += String.valueOf(filaCaracteres.poll());
+
+                }
+                aux += String.valueOf(filaCaracteres.poll());
+                if (aux.length() <= 255) {
+                    pilhaFinal.add(new Token(48, aux, linhaAtual));
+                } else {
+                    return new Erro(true, "Literal não pode conter mais de 255 caracteres", linhaAtual);
+                }
+                aux = "";
+            } else {
+                aux = aux.replaceAll("\\s", "");
+                if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase(" ")) {
+                    filaCaracteres.poll();
+
+                    if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
+
+                        try {
+                            Double.parseDouble(aux);
+                            if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
+                                pilhaFinal.add(new Token(26, aux, linhaAtual));
+                            } else {
+                                return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
+                            }
+                        } catch (NumberFormatException e) {
+                            aux3 = String.valueOf(aux.charAt(0));
 
                             try {
-                                Double.parseDouble(aux);
-                                if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
-                                    pilhaFinal.add(new Token(26, aux, linhaAtual));
+                                Double.parseDouble(aux3);
+                                return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
+                            } catch (NumberFormatException ee) {
+                                if (aux.length() <= 30) {
+                                    pilhaFinal.add(new Token(25, aux, linhaAtual));
                                 } else {
-                                    return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
+                                    return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
                                 }
-                            } catch (NumberFormatException e) {
-                                aux3 = String.valueOf(aux.charAt(0));
+                            }
+                        }
+                        aux = "";
+                    }
+                } else {
+                    if (!filaCaracteres.isEmpty()) {
+                        aux2 = filaCaracteres.poll().toString();
+
+                        if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+                            if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                 try {
-                                    Double.parseDouble(aux3);
-                                    return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
-                                } catch (NumberFormatException ee) {
-                                    if (aux.length() <= 30) {
-                                        pilhaFinal.add(new Token(25, aux, linhaAtual));
+                                    Double.parseDouble(aux);
+                                    if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
+                                        pilhaFinal.add(new Token(26, aux, linhaAtual));
                                     } else {
-                                        return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
+                                        return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    aux3 = String.valueOf(aux.charAt(0));
+
+                                    try {
+                                        Double.parseDouble(aux3);
+                                        return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
+                                    } catch (NumberFormatException ee) {
+                                        if (aux.length() <= 30) {
+                                            pilhaFinal.add(new Token(25, aux, linhaAtual));
+                                        } else {
+                                            return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
+                                        }
                                     }
                                 }
+                                aux = "";
                             }
-                            aux = "";
-                        }
-                    } else {
-                        if (!filaCaracteres.isEmpty()) {
-                            aux2 = filaCaracteres.poll().toString();
+                            pilhaFinal.add(new Token(tabela.get(aux2.toString().toUpperCase() + filaCaracteres.peek()), aux2.toString().toUpperCase() + filaCaracteres.peek(), linhaAtual));
+                            filaCaracteres.poll();
+                        } else if (tabela.containsKey(aux2.toUpperCase())) {
 
-                            if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+                            if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
+
+                                try {
+                                    Double.parseDouble(aux);
+                                    if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
+                                        pilhaFinal.add(new Token(26, aux, linhaAtual));
+                                    } else {
+                                        return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
+                                    }
+                                } catch (NumberFormatException e) {
+                                    aux3 = String.valueOf(aux.charAt(0));
+
+                                    try {
+                                        Double.parseDouble(aux3);
+                                        return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
+                                    } catch (NumberFormatException ee) {
+                                        if (aux.length() <= 30) {
+                                            pilhaFinal.add(new Token(25, aux, linhaAtual));
+                                        } else {
+                                            return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
+                                        }
+                                    }
+                                }
+                                aux = "";
+                            }
+                            pilhaFinal.add(new Token(tabela.get(aux2.toUpperCase()), aux2.toUpperCase(), linhaAtual));
+
+                        } else {
+
+                            aux += aux2.toString();
+
+                            aux = aux.replaceAll(" ", "");
+
+                            if (tabela.containsKey(aux.toUpperCase())) {
+
+                                pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
+                                aux = "";
+                            } else if (filaCaracteres.isEmpty()) {
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                     try {
@@ -391,105 +513,41 @@ public class Processador {
                                     }
                                     aux = "";
                                 }
-                                pilhaFinal.add(new Token(tabela.get(aux2.toString().toUpperCase() + filaCaracteres.peek()), aux2.toString().toUpperCase() + filaCaracteres.peek(), linhaAtual));
-                                filaCaracteres.poll();
-                            } else if (tabela.containsKey(aux2.toUpperCase())) {
-
-                                if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-
-                                    try {
-                                        Double.parseDouble(aux);
-                                        if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
-                                            pilhaFinal.add(new Token(26, aux, linhaAtual));
-                                        } else {
-                                            return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
-                                        }
-                                    } catch (NumberFormatException e) {
-                                        aux3 = String.valueOf(aux.charAt(0));
-
-                                        try {
-                                            Double.parseDouble(aux3);
-                                            return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
-                                        } catch (NumberFormatException ee) {
-                                            if (aux.length() <= 30) {
-                                                pilhaFinal.add(new Token(25, aux, linhaAtual));
-                                            } else {
-                                                return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
-                                            }
-                                        }
-                                    }
-                                    aux = "";
-                                }
-                                pilhaFinal.add(new Token(tabela.get(aux2.toUpperCase()), aux2.toUpperCase(), linhaAtual));
-
-                            } else {
-                                aux += aux2.toString();
-                                if (tabela.containsKey(aux.toUpperCase())) {
-                                    pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
-                                    aux = "";
-                                } else if (filaCaracteres.isEmpty()) {
-                                    if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-
-                                        try {
-                                            Double.parseDouble(aux);
-                                            if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
-                                                pilhaFinal.add(new Token(26, aux, linhaAtual));
-                                            } else {
-                                                return new Erro(true, "Valor inteiro fora da faixa aceita", linhaAtual);
-                                            }
-                                        } catch (NumberFormatException e) {
-                                            aux3 = String.valueOf(aux.charAt(0));
-
-                                            try {
-                                                Double.parseDouble(aux3);
-                                                return new Erro(true, "Identificador não pode começar com um número", linhaAtual);
-                                            } catch (NumberFormatException ee) {
-                                                if (aux.length() <= 30) {
-                                                    pilhaFinal.add(new Token(25, aux, linhaAtual));
-                                                } else {
-                                                    return new Erro(true, "Identificador não pode conter mais de 30 caracteres", linhaAtual);
-                                                }
-                                            }
-                                        }
-                                        aux = "";
-                                    }
-                                }
-
                             }
+
                         }
                     }
                 }
+            }
 
-            } while (!filaCaracteres.isEmpty());
+        } while (!filaCaracteres.isEmpty());
 
-            filaCaracteres.clear();
-            filaCaracteresAuxiliar.clear();
-        
+        filaCaracteres.clear();
+        filaCaracteresAuxiliar.clear();
+
         String verificador = "";
-       
+
         for (Token t : pilhaFinal) {
-            
+
             if (!pilhaFinal.empty()) {
-                
+
                 if (t.getCod() == 26) {
                     if (verificador.equalsIgnoreCase("ab")) {
-                        
+
                         verificador += "c";
-                    }else if(verificador.equalsIgnoreCase("")){
-                         verificador += "a";
-                    }else {
+                    } else if (verificador.equalsIgnoreCase("")) {
+                        verificador += "a";
+                    } else {
                         verificador = "";
                     }
-                   
-                   
 
                 }
-                if (t.getCod() == 49) { 
-                    
+                if (t.getCod() == 49) {
+
                     if (verificador.equalsIgnoreCase("a")) {
-                        
+
                         verificador += "b";
-                    }else{
+                    } else {
                         verificador = "";
                     }
                 }
@@ -502,46 +560,41 @@ public class Processador {
         }
         return new Erro(false);
     }
-    
-    
-    
-    public static Erro analisadorSemantico(Queue<Token> filaFinal, Queue<Token> filaNterminais){
+
+    public static Erro analisadorSemantico(Queue<Token> filaFinal, Queue<Token> filaNterminais) {
         if (!filaNterminais.isEmpty()) {
-            
-       
-        
-        HashMap<String, String> tabelaParsing = new HashMap<String, String>();
-        
-        Token.implementaTabelaParsing(tabelaParsing);
-        if (filaNterminais.peek().getCod()<52) {
-            if (filaNterminais.peek().getCod()==filaFinal.peek().getCod()) {
-                filaNterminais.poll();
-                filaFinal.poll();
-                
-            }else{
-                return new Erro(true);
+
+            HashMap<String, String> tabelaParsing = new HashMap<String, String>();
+
+            Token.implementaTabelaParsing(tabelaParsing);
+            if (filaNterminais.peek().getCod() < 52) {
+                if (filaNterminais.peek().getCod() == filaFinal.peek().getCod()) {
+                    filaNterminais.poll();
+                    filaFinal.poll();
+
+                } else {
+                    return new Erro(true);
+                }
+            } else {
+
+                if (!tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
+                    List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, "" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
+                    filaNterminais.poll();
+                    aux.addAll(filaNterminais);
+                    filaNterminais.clear();
+                    filaNterminais.addAll(aux);
+
+                } else if (tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
+                    filaNterminais.poll();
+
+                } else {
+                    return new Erro(true);
+                }
+
             }
-        }else{
-            
-            if (!tabelaParsing.get(""+filaNterminais.peek().getCod()+","+filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
-                List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, ""+filaNterminais.peek().getCod()+","+filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
-                filaNterminais.poll();
-                aux.addAll(filaNterminais);
-                filaNterminais.clear();
-                filaNterminais.addAll(aux);
-                
-            }else if(tabelaParsing.get(""+filaNterminais.peek().getCod()+","+filaFinal.peek().getCod()).equalsIgnoreCase("null")){
-                filaNterminais.poll();
-            
-            }else{
-                return new Erro(true);
-            }
-            
-            
+
         }
-        
-        }
-        
+
         return new Erro(false);
     }
 

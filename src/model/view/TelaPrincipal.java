@@ -254,23 +254,33 @@ public class TelaPrincipal extends JFrame {
         processarPasso.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
         processarPasso.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                if (filaNTerminais.isEmpty()) {
-                    filaNTerminais.add(new Token(52, "PROGRAMA"));
-                }
-                HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
                 
-                Erro erro = Processador.analisadorSemantico(filaFinal, filaNTerminais);
+                
+                tabelaTokens.setModel(ttm);
                 ttm.limpar();
+               
+                String array[] = txtCodigo.getText().split("\n");
+                linhas.clear();
+                for (int i = 0; i < array.length; i++) {
+                    array[i] = array[i].replaceAll("\t", "");
+                    linhas.add(array[i]);
+                }
+                
+                Erro erro = Processador.analisadorLexicoPasso(pilhaFinal, linhas.get(contador));
+                if (!erro.isStatus()) {
+                    ttm.limpar();
+                filaFinal.clear();
+                filaFinal.addAll(pilhaFinal);
                 for (Token t : filaFinal) {
                     ttm.addToken(t);
                 }
-                tabelaTokens.setModel(ttm);
                 
-                ttm2.limpar();
-                for (Token t : filaNTerminais) {
-                    ttm2.addToken(t);
+                
+                }else{
+                    ttm.limpar();
+                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
                 }
-                tabelaTokensNaoTerminais.setModel(ttm2);
+                contador++;
                 
             }
         });

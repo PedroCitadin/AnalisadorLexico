@@ -1,6 +1,7 @@
 package model.bean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,67 @@ public class Token {
         return tokens;
     }
 
+    public static List<String> palavrasReservadas() {
+        List<String> palavras = new ArrayList<String>();
+        String p[] = {"AND", "ARRAY", "BEGIN", "CALL", "CASE", "CONST", "DO", "ELSE", "END", "FOR", "GOTO",
+            "IF", "INTEGER", "LABEL", "NOT", "OF", "OR", "PROCEDURE", "PROGRAM", "READLN",
+            "REPEAT", "THEN", "TO", "UNTIL", "VAR", "WHILE", "WRITELN"};
+        palavras.addAll(Arrays.asList(p));
+        return palavras;
+    }
+    
+    public static List<String> operadoresAritimeticos() {
+        List<String> palavras = new ArrayList<String>();
+        String p[] = {"+", "-", "*", "/"};
+        palavras.addAll(Arrays.asList(p));
+        return palavras;
+    }
+    public static List<String> operadoresRelacionais() {
+        List<String> palavras = new ArrayList<String>();
+        String p[] = {"=", "<", ">", ":=", ">=", "<="};
+        palavras.addAll(Arrays.asList(p));
+        return palavras;
+    }
+    
+    public static List<String> simbolosEspeciais() {
+        List<String> palavras = new ArrayList<String>();
+        String p[] = {":", ",", ".", "(", ")", ":", "..", "[", "]", "´", "_"};
+        palavras.addAll(Arrays.asList(p));
+        return palavras;
+    }
+    public static List<String> simbolosDelimitadores() {
+        List<String> palavras = new ArrayList<String>();
+        String p[] = {":", ",", ".", "(", ")", ":", "..", "[", "]", "´", "\n", " ", null};
+        palavras.addAll(Arrays.asList(p));
+        return palavras;
+    }
+    public static boolean verificaSimboloDelimitador(String palavra){
+            for (String sim : simbolosDelimitadores()) {
+                if (palavra.contains(sim)) {
+                    return true;
+                }
+            }
+        return false;
+        
+    }
+    public static boolean verificaSimboloEspecial(String palavra){
+            for (String sim : simbolosEspeciais()) {
+                if (palavra.contains(sim)) {
+                    return true;
+                }
+            }
+        return false;
+        
+    }
+    public static boolean verificaSimboloEspecialIgual(String palavra){
+            for (String sim : simbolosEspeciais()) {
+                if (palavra.equalsIgnoreCase(sim)) {
+                    return true;
+                }
+            }
+        return false;
+        
+    }
     public static HashMap<String, Integer> implementaNaoTerminais() {
         HashMap<String, Integer> token = new HashMap<String, Integer>();
 
