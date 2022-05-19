@@ -149,7 +149,7 @@ public class Processador {
                         if (!filaCaracteres.isEmpty()) {
                             aux2 = filaCaracteres.poll().toString();
                             
-                            if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+                            if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())&&!Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
                                 
                                 
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
@@ -179,7 +179,7 @@ public class Processador {
                                 }
                                 pilhaFinal.add(new Token(tabela.get(aux2.toString().toUpperCase() + filaCaracteres.peek()), aux2.toString().toUpperCase() + filaCaracteres.peek(), linhaAtual));
                                 filaCaracteres.poll();
-                            } else if (tabela.containsKey(aux2.toUpperCase())) {
+                            } else if (tabela.containsKey(aux2.toUpperCase())&&!Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
                                 
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
