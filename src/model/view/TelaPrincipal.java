@@ -55,13 +55,14 @@ public class TelaPrincipal extends JFrame {
     private JFileChooser fc;
     private JFileChooser dc;
     private Stack<Token> pilhaFinal;
-    
+
     private Token tokens;
-    
+
     private Arquivo arq;
     private List<String> linhas;
     private Queue<Token> filaFinal;
     private Queue<Token> filaNTerminais;
+
     public TelaPrincipal() {
         this.setSize(1215, 930);
         setResizable(false);
@@ -79,8 +80,7 @@ public class TelaPrincipal extends JFrame {
         pilhaFinal = new Stack<Token>();
         filaFinal = new LinkedList<>();
         filaNTerminais = new LinkedList<>();
-        
-        
+
         linhas = new ArrayList<String>();
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(false);
@@ -93,12 +93,12 @@ public class TelaPrincipal extends JFrame {
         txtCodigo = new JTextArea();
         txtCodigo.setBounds(5, 62, 590, 740);
         txtCodigo.setBorder(new NumeredBorder());
-        
+
         sPaneCodigo = new JScrollPane(txtCodigo);
         sPaneCodigo.setBounds(5, 62, 595, 740);
-        
+
         getContentPane().add(sPaneCodigo);
-        
+
         TokenTableModel ttm = new TokenTableModel();
         tabelaTokens = new JTable(ttm);
         tabelaTokens.setBounds(605, 62, 590, 400);
@@ -106,8 +106,7 @@ public class TelaPrincipal extends JFrame {
         sPane.setBounds(605, 62, 595, 400);
 
         getContentPane().add(sPane);
-        
-        
+
         TokenTableModel ttm2 = new TokenTableModel();
         tabelaTokensNaoTerminais = new JTable(ttm2);
         tabelaTokensNaoTerminais.setBounds(605, 480, 590, 400);
@@ -124,7 +123,7 @@ public class TelaPrincipal extends JFrame {
         novoArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 String aux = JOptionPane.showInputDialog("Informe o nome do arquivo");
-                if (aux!=null&&!aux.equalsIgnoreCase("")) {
+                if (aux != null && !aux.equalsIgnoreCase("")) {
                     arq.setNome(aux);
 
                     dc.showDialog(getContentPane(), "Selecionar Diretório");
@@ -147,23 +146,23 @@ public class TelaPrincipal extends JFrame {
         carregarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 fc.showDialog(getContentPane(), "Selecionar Arquivo");
-                try{
-                arq.setEndereco(fc.getSelectedFile().getParent());
-                arq.setNome(fc.getSelectedFile().getName());
                 try {
-                    List<String> linhas = arq.pegalistaLinhas(arq);
-                    String texto = "";
-                    txtCodigo.setRows(linhas.size());
-                    for (String s : linhas) {
-                        texto += s + "\n";
-                    }
+                    arq.setEndereco(fc.getSelectedFile().getParent());
+                    arq.setNome(fc.getSelectedFile().getName());
+                    try {
+                        List<String> linhas = arq.pegalistaLinhas(arq);
+                        String texto = "";
+                        txtCodigo.setRows(linhas.size());
+                        for (String s : linhas) {
+                            texto += s + "\n";
+                        }
 
-                    txtCodigo.setText(texto);
-                } catch (IOException ex) {
-                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                }catch (java.lang.NullPointerException e){
-                    
+                        txtCodigo.setText(texto);
+                    } catch (IOException ex) {
+                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } catch (java.lang.NullPointerException e) {
+
                 }
             }
         });
@@ -173,34 +172,33 @@ public class TelaPrincipal extends JFrame {
         salvarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/salvarArquivo.png")));
         salvarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                try{
-                    
-                
-                if (arq.getNome()!=null) {
-                    try {
-                        arq.reescreveNoArquivo(arq, txtCodigo.getText());
-                    } catch (IOException ex) {
-                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    String aux = JOptionPane.showInputDialog("Informe o nome do arquivo");
-                    if (!aux.equalsIgnoreCase("")) {
-                        arq.setNome(aux);
+                try {
 
-                        dc.showDialog(getContentPane(), "Selecionar Diretório");
-                        if (!dc.getSelectedFile().getParent().isEmpty()) {
-                            arq.setEndereco(dc.getSelectedFile().getPath());
-                            try {
-                                arq.criaArquivo(arq);
-                            } catch (IOException ex) {
-                                Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    if (arq.getNome() != null) {
+                        try {
+                            arq.reescreveNoArquivo(arq, txtCodigo.getText());
+                        } catch (IOException ex) {
+                            Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else {
+                        String aux = JOptionPane.showInputDialog("Informe o nome do arquivo");
+                        if (!aux.equalsIgnoreCase("")) {
+                            arq.setNome(aux);
+
+                            dc.showDialog(getContentPane(), "Selecionar Diretório");
+                            if (!dc.getSelectedFile().getParent().isEmpty()) {
+                                arq.setEndereco(dc.getSelectedFile().getPath());
+                                try {
+                                    arq.criaArquivo(arq);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                txtCodigo.setText("");
                             }
-                            txtCodigo.setText("");
                         }
                     }
-                }
-                }catch (java.lang.NullPointerException e) {
-                    
+                } catch (java.lang.NullPointerException e) {
+
                 }
 
             }
@@ -224,10 +222,10 @@ public class TelaPrincipal extends JFrame {
         processarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarArquivo.png")));
         processarArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                
+
                 tabelaTokens.setModel(ttm);
                 ttm.limpar();
-               
+
                 String array[] = txtCodigo.getText().split("\n");
                 linhas.clear();
                 for (int i = 0; i < array.length; i++) {
@@ -240,61 +238,63 @@ public class TelaPrincipal extends JFrame {
                 Erro erro = Processador.analisadorLexico(pilhaFinal, linhas);
                 if (!erro.isStatus()) {
                     ttm.limpar();
-                filaFinal.addAll(pilhaFinal);
-                for (Token t : filaFinal) {
-                    ttm.addToken(t);
-                }
-                
-                tabelaTokens.setModel(ttm);
-                }else{
+                    filaFinal.addAll(pilhaFinal);
+                    for (Token t : filaFinal) {
+                        ttm.addToken(t);
+                    }
+
+                    tabelaTokens.setModel(ttm);
+                } else {
                     ttm.limpar();
-                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
+                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha());
                 }
             }
         });
-        
+
         processarPasso = new JButton();
         processarPasso.setPreferredSize(new Dimension(50, 50));
         processarPasso.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
-        processarPasso.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt){
+        processarPasso.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 if (!filaFinal.isEmpty()) {
-                     
-                if (filaNTerminais.isEmpty()) {
-                    filaNTerminais.add(new Token(52, "PROGRAMA"));
-                }
-                HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
-                
-                Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
-                    if (erro.isStatus()) {
-                        JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
+
+                    while (!filaFinal.isEmpty()) {
+                        if (filaNTerminais.isEmpty()) {
+                            filaNTerminais.add(new Token(52, "PROGRAMA"));
+                        }
+                        HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
+
+                        Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
+                        if (erro.isStatus()) {
+                            JOptionPane.showConfirmDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha());
+                            break;
+                        }
+                        ttm.limpar();
+                        for (Token t : filaFinal) {
+                            ttm.addToken(t);
+                        }
+                        tabelaTokens.setModel(ttm);
+
+                        ttm2.limpar();
+                        for (Token t : filaNTerminais) {
+                            ttm2.addToken(t);
+                        }
+                        tabelaTokensNaoTerminais.setModel(ttm2);
                     }
-                ttm.limpar();
-                for (Token t : filaFinal) {
-                    ttm.addToken(t);
-                }
-                tabelaTokens.setModel(ttm);
-                
-                ttm2.limpar();
-                for (Token t : filaNTerminais) {
-                    ttm2.addToken(t);
-                }
-                tabelaTokensNaoTerminais.setModel(ttm2);
-                
-                
-                }else{
+
+                } else {
                     JOptionPane.showConfirmDialog(rootPane, "Pilha final já está vazia");
                 }
             }
         });
-        
+
         barraMenu.add(novoArquivo);
         barraMenu.add(carregarArquivo);
         barraMenu.add(salvarArquivo);
         barraMenu.add(xArquivo);
         barraMenu.add(processarArquivo);
         barraMenu.add(processarPasso);
-        
+
         getContentPane().add(barraMenu);
     }
 
