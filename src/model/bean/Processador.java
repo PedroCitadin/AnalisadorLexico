@@ -562,7 +562,7 @@ public class Processador {
         return new Erro(false);
     }
 
-    public static Erro analisadorSemantico(Queue<Token> filaFinal, Queue<Token> filaNterminais) {
+    public static Erro analisadorSintatico(Queue<Token> filaFinal, Queue<Token> filaNterminais) {
         if (!filaNterminais.isEmpty()) {
 
             HashMap<String, String> tabelaParsing = new HashMap<String, String>();
@@ -574,10 +574,10 @@ public class Processador {
                     filaFinal.poll();
 
                 } else {
-                    return new Erro(true);
+                    return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
                 }
             } else {
-
+                
                 if (!tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
                     List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, "" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
                     filaNterminais.poll();
@@ -589,7 +589,7 @@ public class Processador {
                     filaNterminais.poll();
 
                 } else {
-                    return new Erro(true);
+                    return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
                 }
 
             }

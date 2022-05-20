@@ -361,9 +361,9 @@ public class Token {
         token.put("78,40", "=&&EXPSIMP");
         token.put("78,41", ">&&EXPSIMP");
         token.put("78,42", ">=&&EXPSIMP");
-        token.put("78,43", "&lt;&&EXPSIMP");
-        token.put("78,44", "&lt;=&&EXPSIMP");
-        token.put("78,45", "&lt;&gt;&&EXPSIMP");
+        token.put("78,43", "<&&EXPSIMP");
+        token.put("78,44", "<=&&EXPSIMP");
+        token.put("78,45", "<>&&EXPSIMP");
         token.put("78,46", "NULL");
         token.put("78,47", "NULL");
         token.put("79,24", "TERMO&&REPEXP");

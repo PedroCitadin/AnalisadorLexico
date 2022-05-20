@@ -212,6 +212,10 @@ public class TelaPrincipal extends JFrame {
         xArquivo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 ttm.limpar();
+                ttm2.limpar();
+                filaFinal.clear();
+                filaNTerminais.clear();
+                pilhaFinal.clear();
             }
         });
 
@@ -254,34 +258,33 @@ public class TelaPrincipal extends JFrame {
         processarPasso.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
         processarPasso.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                
-                
-                tabelaTokens.setModel(ttm);
-                ttm.limpar();
-               
-                String array[] = txtCodigo.getText().split("\n");
-                linhas.clear();
-                for (int i = 0; i < array.length; i++) {
-                    array[i] = array[i].replaceAll("\t", "");
-                    linhas.add(array[i]);
+                if (!filaFinal.isEmpty()) {
+                     
+                if (filaNTerminais.isEmpty()) {
+                    filaNTerminais.add(new Token(52, "PROGRAMA"));
                 }
+                HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
                 
-                Erro erro = Processador.analisadorLexicoPasso(pilhaFinal, linhas.get(contador));
-                if (!erro.isStatus()) {
-                    ttm.limpar();
-                filaFinal.clear();
-                filaFinal.addAll(pilhaFinal);
+                Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
+                    if (erro.isStatus()) {
+                        JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
+                    }
+                ttm.limpar();
                 for (Token t : filaFinal) {
                     ttm.addToken(t);
                 }
+                tabelaTokens.setModel(ttm);
+                
+                ttm2.limpar();
+                for (Token t : filaNTerminais) {
+                    ttm2.addToken(t);
+                }
+                tabelaTokensNaoTerminais.setModel(ttm2);
                 
                 
                 }else{
-                    ttm.limpar();
-                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa()+" na linha: "+erro.getLinha());
+                    JOptionPane.showConfirmDialog(rootPane, "Pilha final já está vazia");
                 }
-                contador++;
-                
             }
         });
         
