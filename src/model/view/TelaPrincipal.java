@@ -49,15 +49,15 @@ public class TelaPrincipal extends JFrame {
     private JButton carregarArquivo;
     private JButton salvarArquivo;
     private JButton xArquivo;
-    private JButton processarArquivo;
-    private JButton processarPasso;
+    private JButton processarLexico;
+    private JButton processarSintatico;
     private int contador;
     private JFileChooser fc;
     private JFileChooser dc;
     private Stack<Token> pilhaFinal;
 
     private Token tokens;
-
+    private boolean statusLexico;
     private Arquivo arq;
     private List<String> linhas;
     private Queue<Token> filaFinal;
@@ -80,7 +80,7 @@ public class TelaPrincipal extends JFrame {
         pilhaFinal = new Stack<Token>();
         filaFinal = new LinkedList<>();
         filaNTerminais = new LinkedList<>();
-
+        statusLexico = false;
         linhas = new ArrayList<String>();
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(false);
@@ -214,13 +214,14 @@ public class TelaPrincipal extends JFrame {
                 filaFinal.clear();
                 filaNTerminais.clear();
                 pilhaFinal.clear();
+                statusLexico = false;
             }
         });
 
-        processarArquivo = new JButton();
-        processarArquivo.setPreferredSize(new Dimension(50, 50));
-        processarArquivo.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarArquivo.png")));
-        processarArquivo.addActionListener(new ActionListener() {
+        processarLexico = new JButton();
+        processarLexico.setPreferredSize(new Dimension(50, 50));
+        processarLexico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarLexico.png")));
+        processarLexico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
 
                 tabelaTokens.setModel(ttm);
@@ -244,6 +245,7 @@ public class TelaPrincipal extends JFrame {
                     }
 
                     tabelaTokens.setModel(ttm);
+                    statusLexico = true;
                 } else {
                     ttm.limpar();
                     JOptionPane.showConfirmDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha());
@@ -251,12 +253,13 @@ public class TelaPrincipal extends JFrame {
             }
         });
 
-        processarPasso = new JButton();
-        processarPasso.setPreferredSize(new Dimension(50, 50));
-        processarPasso.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
-        processarPasso.addActionListener(new ActionListener() {
+        processarSintatico = new JButton();
+        processarSintatico.setPreferredSize(new Dimension(50, 50));
+        processarSintatico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
+        processarSintatico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                if (!filaFinal.isEmpty()) {
+                if (statusLexico) {
+                    if (!filaFinal.isEmpty()) {
 
                     while (!filaFinal.isEmpty()) {
                         if (filaNTerminais.isEmpty()) {
@@ -283,7 +286,10 @@ public class TelaPrincipal extends JFrame {
                     }
 
                 } else {
-                    JOptionPane.showConfirmDialog(rootPane, "Pilha final já está vazia");
+                    JOptionPane.showConfirmDialog(rootPane, "Analise Sintática já feita!");
+                }
+                }else{
+                    JOptionPane.showConfirmDialog(rootPane, "É preciso fazer a analise Léxica primeiro!");
                 }
             }
         });
@@ -292,8 +298,8 @@ public class TelaPrincipal extends JFrame {
         barraMenu.add(carregarArquivo);
         barraMenu.add(salvarArquivo);
         barraMenu.add(xArquivo);
-        barraMenu.add(processarArquivo);
-        barraMenu.add(processarPasso);
+        barraMenu.add(processarLexico);
+        barraMenu.add(processarSintatico);
 
         getContentPane().add(barraMenu);
     }
