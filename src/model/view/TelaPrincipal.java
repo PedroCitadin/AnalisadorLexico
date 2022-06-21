@@ -51,6 +51,7 @@ public class TelaPrincipal extends JFrame {
     private JButton xArquivo;
     private JButton processarLexico;
     private JButton processarSintatico;
+    private JButton processarSemantico;
     private int contador;
     private JFileChooser fc;
     private JFileChooser dc;
@@ -248,7 +249,7 @@ public class TelaPrincipal extends JFrame {
                     statusLexico = true;
                 } else {
                     ttm.limpar();
-                    JOptionPane.showConfirmDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha());
+                    JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -269,7 +270,7 @@ public class TelaPrincipal extends JFrame {
 
                         Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
                         if (erro.isStatus()) {
-                            JOptionPane.showConfirmDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha());
+                            JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         ttm.limpar();
@@ -291,16 +292,29 @@ public class TelaPrincipal extends JFrame {
                 }else{
                     JOptionPane.showConfirmDialog(rootPane, "É preciso fazer a analise Léxica primeiro!");
                 }
+                    
             }
         });
 
+        processarSemantico = new JButton();
+        processarSemantico.setPreferredSize(new Dimension(50, 50));
+        processarSemantico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarSemantico.png")));
+        processarSemantico.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt) {
+                Erro erro = Processador.analisadorSemantico(filaFinal);
+                    if (erro.isStatus()) {
+                    JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE); 
+                    }
+            }
+        });
+        
         barraMenu.add(novoArquivo);
         barraMenu.add(carregarArquivo);
         barraMenu.add(salvarArquivo);
         barraMenu.add(xArquivo);
         barraMenu.add(processarLexico);
         barraMenu.add(processarSintatico);
-
+        barraMenu.add(processarSemantico);
         getContentPane().add(barraMenu);
     }
 

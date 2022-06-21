@@ -20,7 +20,7 @@ public class Processador {
     private static final List<String> simbolosEspeciais = Token.simbolosEspeciais();
     private static final List<String> operadoresAritimeticos = Token.operadoresAritimeticos();
     private static final List<String> operadoresRelacionais = Token.operadoresRelacionais();
-    
+    private static Token tokenAnterior = new Token(0, "", 1);
     
     public static Erro analisadorLexico(Stack<Token> pilhaFinal, List<String> linhas) {
         int linhaAtual = 0;
@@ -220,7 +220,7 @@ public class Processador {
                                 aux = aux.replaceAll(" ", "");
                                 
                                 if (tabela.containsKey(aux.toUpperCase())) {
-                                    System.out.println(aux);
+                                    
                                     if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek()))||filaCaracteres.peek()==null) {
                                         
                                         pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
@@ -303,6 +303,7 @@ public class Processador {
         return new Erro(false);
     }
     public static Erro analisadorSintatico(Queue<Token> filaFinal, Queue<Token> filaNterminais) {
+        
         if (!filaNterminais.isEmpty()) {
 
             HashMap<String, String> tabelaParsing = new HashMap<String, String>();
@@ -311,12 +312,15 @@ public class Processador {
             if (filaNterminais.peek().getCod() < 52) {
                 if (filaNterminais.peek().getCod() == filaFinal.peek().getCod()) {
                     filaNterminais.poll();
+                    tokenAnterior = filaFinal.peek();
                     filaFinal.poll();
 
                 } else {
-                    return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
+                    
                 }
             } else {
+                try{
+                    
                 
                 if (!tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
                     List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, "" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
@@ -329,7 +333,10 @@ public class Processador {
                     filaNterminais.poll();
 
                 } else {
-                    return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
+                    //return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
+                }
+                }catch(Exception e){
+                    return new Erro(true, "Erro Sintático", tokenAnterior.getLinha());
                 }
 
             }
@@ -339,4 +346,43 @@ public class Processador {
         return new Erro(false);
     }
 
+  //////////////////Analise Semantica 
+    public static Erro analisadorSemantico(Queue<Token> filaFinal){
+        HashMap<String, Simbolo> tabelaSimbolos = new HashMap<String, Simbolo>();
+        int dclCategoria = 0;
+        int nivel = 0;
+        for (Token token : filaFinal) {
+            switch(token.getCod()){
+                case 2: dclCategoria = 1; break;
+                case 3: dclCategoria = 2; break;
+                case 4: dclCategoria = 3; break;
+                case 5: dclCategoria = 4; break;
+                
+            }
+            if (token.getCod()==25) {
+                if (tabelaSimbolos.containsKey(token.getSimbolo())) {
+                    return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                }
+                switch(dclCategoria){
+                    case 1: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "LABEL", "", nivel)); break;
+                    case 2: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "CONST", "", nivel)); break;
+                    case 3: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "VAR", "INTEIRO", nivel)); break;
+                    case 4: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel)); dclCategoria = 5; nivel = 1; break;
+                    case 5: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel));
+                }
+            }
+            if (token.getCod()==6) {
+                dclCategoria = 0;
+            }
+            if (token.getCod()==7) {
+                nivel  = 0;
+            }
+        }
+        System.out.println(tabelaSimbolos.toString());
+        return null;
+        
+    }
+    
+    
+    
 }
