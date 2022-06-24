@@ -62,6 +62,7 @@ public class TelaPrincipal extends JFrame {
     private Arquivo arq;
     private List<String> linhas;
     private Queue<Token> filaFinal;
+    private Queue<Token> filaFinalBackup;
     private Queue<Token> filaNTerminais;
 
     public TelaPrincipal() {
@@ -80,6 +81,7 @@ public class TelaPrincipal extends JFrame {
         tokens = new Token();
         pilhaFinal = new Stack<Token>();
         filaFinal = new LinkedList<>();
+        filaFinalBackup = new LinkedList<>();
         filaNTerminais = new LinkedList<>();
         statusLexico = false;
         linhas = new ArrayList<String>();
@@ -260,8 +262,9 @@ public class TelaPrincipal extends JFrame {
         processarSintatico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 if (statusLexico) {
+                    
                     if (!filaFinal.isEmpty()) {
-
+                        filaFinalBackup.addAll(filaFinal);
                     while (!filaFinal.isEmpty()) {
                         if (filaNTerminais.isEmpty()) {
                             filaNTerminais.add(new Token(52, "PROGRAMA"));
@@ -301,9 +304,12 @@ public class TelaPrincipal extends JFrame {
         processarSemantico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarSemantico.png")));
         processarSemantico.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
+                    filaFinal.addAll(filaFinalBackup);
                     Erro erro = Processador.analisadorSemantico(filaFinal);
                     if (erro.isStatus()) {
                     JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE); 
+                    }else{
+                       JOptionPane.showMessageDialog(rootPane, "Programa OK!","Sucesso",  JOptionPane.INFORMATION_MESSAGE); 
                     }
             }
         });

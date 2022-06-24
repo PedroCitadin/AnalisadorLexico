@@ -345,7 +345,7 @@ public class Processador {
         HashMap<String, Simbolo> tabelaSimbolos = new HashMap<String, Simbolo>();
         int dclCategoria = 0;
         int nivel = 0;
-        
+        boolean temProcedure = false;
         int vrfCategoria = 0;
         
         /////pega os identificadores declarados
@@ -362,6 +362,9 @@ public class Processador {
                     break;
                 case 5:
                     dclCategoria = 4;
+                    break;
+                case 1:
+                    dclCategoria = 6;
                     break;
 
             }
@@ -390,6 +393,7 @@ public class Processador {
                         if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel).toString())) {
                             return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
                         }
+                        temProcedure = true;
                         tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel).toString(), new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel));
                         dclCategoria = 5;
                         nivel = 1;
@@ -399,6 +403,11 @@ public class Processador {
                             return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
                         }
                         tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel).toString(), new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel));
+                        break;
+                    case 6:
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PROGRAMA", "", nivel).toString(), new Simbolo(token.getSimbolo(), "PROGRAMA", "", nivel));
+                        break;
+                        
                 }
             }
             if (token.getCod() == 6) {
@@ -408,12 +417,13 @@ public class Processador {
                 nivel = 0;
             }
         }
-        for (String s : tabelaSimbolos.keySet()) {
-            System.out.println(s);
-        }
+        
         //////valida as variaveis
         nivel = 0;
         for (Token token : filaFinal) {
+            if (!temProcedure) {
+                vrfCategoria = 4;
+            }
             if (token.getCod()==5) {
                 vrfCategoria = 1;
                 nivel = 1;
