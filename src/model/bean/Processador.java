@@ -21,7 +21,7 @@ public class Processador {
     private static final List<String> operadoresAritimeticos = Token.operadoresAritimeticos();
     private static final List<String> operadoresRelacionais = Token.operadoresRelacionais();
     private static Token tokenAnterior = new Token(0, "", 1);
-    
+
     public static Erro analisadorLexico(Stack<Token> pilhaFinal, List<String> linhas) {
         int linhaAtual = 0;
         boolean auxComent = false;
@@ -31,11 +31,9 @@ public class Processador {
         Queue<Character> filaCaracteres = new LinkedList<>();
         Queue<Character> filaCaracteresAuxiliar = new LinkedList<>();
         for (String l : linhas) {
-            
-                l = l.trim();
-                pilhaLinhas.add(l);
-            
-            
+
+            l = l.trim();
+            pilhaLinhas.add(l);
 
         }
         for (String s : pilhaLinhas) {
@@ -49,24 +47,24 @@ public class Processador {
             filaCaracteresAuxiliar.clear();
             filaCaracteresAuxiliar.addAll(filaCaracteres);
             do {
-                
+
                 if (auxComent) {
                     ///comentário aberto
                     while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
-                            aux += String.valueOf(filaCaracteres.poll());
-                            if (filaCaracteres.peek()==null) {
-                                auxComent = true;
-                                break;
-                            }
-                        }
-                        if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
-                            auxComent = false;
-                        }
                         aux += String.valueOf(filaCaracteres.poll());
-                        aux += String.valueOf(filaCaracteres.poll());
+                        if (filaCaracteres.peek() == null) {
+                            auxComent = true;
+                            break;
+                        }
+                    }
+                    if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
+                        auxComent = false;
+                    }
+                    aux += String.valueOf(filaCaracteres.poll());
+                    aux += String.valueOf(filaCaracteres.poll());
 
-                        aux = "";
-                }else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
+                    aux = "";
+                } else if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("(")) {
                     ////verifica comentário
                     filaCaracteresAuxiliar.clear();
                     filaCaracteresAuxiliar.addAll(filaCaracteres);
@@ -80,7 +78,7 @@ public class Processador {
 
                         while (!String.valueOf(filaCaracteres.peek()).equalsIgnoreCase("*")) {
                             aux += String.valueOf(filaCaracteres.poll());
-                            if (filaCaracteres.peek()==null) {
+                            if (filaCaracteres.peek() == null) {
                                 auxComent = true;
                                 break;
                             }
@@ -116,12 +114,12 @@ public class Processador {
                     }
                     aux = "";
                 } else {
-                        aux = aux.replaceAll("\\s", "");
+                    aux = aux.replaceAll("\\s", "");
                     if (String.valueOf(filaCaracteres.peek()).equalsIgnoreCase(" ")) {
                         filaCaracteres.poll();
-                       
+
                         if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-                            
+
                             try {
                                 Double.parseDouble(aux);
                                 if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
@@ -148,10 +146,9 @@ public class Processador {
                     } else {
                         if (!filaCaracteres.isEmpty()) {
                             aux2 = filaCaracteres.poll().toString();
-                            
-                            if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek())&&!Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
-                                
-                                
+
+                            if (tabela.containsKey(aux2.toString().toUpperCase() + filaCaracteres.peek()) && !Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                     try {
@@ -179,8 +176,8 @@ public class Processador {
                                 }
                                 pilhaFinal.add(new Token(tabela.get(aux2.toString().toUpperCase() + filaCaracteres.peek()), aux2.toString().toUpperCase() + filaCaracteres.peek(), linhaAtual));
                                 filaCaracteres.poll();
-                            } else if (tabela.containsKey(aux2.toUpperCase())&&!Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
-                                
+                            } else if (tabela.containsKey(aux2.toUpperCase()) && !Token.palavrasReservadas().contains(aux2.toString().toUpperCase() + filaCaracteres.peek())) {
+
                                 if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
 
                                     try {
@@ -206,30 +203,29 @@ public class Processador {
                                     }
                                     aux = "";
                                 }
-                                if (aux2.equalsIgnoreCase("-")&&pilhaFinal.peek().getCod()!=26) {
-                                    aux+=aux2;
-                                }else{
+                                if (aux2.equalsIgnoreCase("-") && pilhaFinal.peek().getCod() != 26) {
+                                    aux += aux2;
+                                } else {
                                     pilhaFinal.add(new Token(tabela.get(aux2.toUpperCase()), aux2.toUpperCase(), linhaAtual));
                                 }
-                                
 
                             } else {
-                                
+
                                 aux += aux2.toString();
-                                
+
                                 aux = aux.replaceAll(" ", "");
-                                
+
                                 if (tabela.containsKey(aux.toUpperCase())) {
-                                    
-                                    if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek()))||filaCaracteres.peek()==null) {
-                                        
+
+                                    if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek())) || filaCaracteres.peek() == null) {
+
                                         pilhaFinal.add(new Token(tabela.get(aux.toUpperCase()), aux.toUpperCase(), linhaAtual));
                                         aux = "";
                                     }
-                                    
-                                } else if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek()))||filaCaracteres.isEmpty()) {
+
+                                } else if (Token.verificaSimboloDelimitadorIgual(String.valueOf(filaCaracteres.peek())) || filaCaracteres.isEmpty()) {
                                     if (!aux.equalsIgnoreCase(" ") && !aux.equalsIgnoreCase("")) {
-                                        
+
                                         try {
                                             Double.parseDouble(aux);
                                             if (Integer.parseInt(aux) >= -32767 && Integer.parseInt(aux) <= 32767) {
@@ -266,30 +262,28 @@ public class Processador {
             filaCaracteresAuxiliar.clear();
         }
         String verificador = "";
-       
+
         for (Token t : pilhaFinal) {
-            
+
             if (!pilhaFinal.empty()) {
-                
+
                 if (t.getCod() == 26) {
                     if (verificador.equalsIgnoreCase("ab")) {
-                        
+
                         verificador += "c";
-                    }else if(verificador.equalsIgnoreCase("")){
-                         verificador += "a";
-                    }else {
+                    } else if (verificador.equalsIgnoreCase("")) {
+                        verificador += "a";
+                    } else {
                         verificador = "";
                     }
-                   
-                   
 
                 }
-                if (t.getCod() == 49) { 
-                    
+                if (t.getCod() == 49) {
+
                     if (verificador.equalsIgnoreCase("a")) {
-                        
+
                         verificador += "b";
-                    }else{
+                    } else {
                         verificador = "";
                     }
                 }
@@ -302,8 +296,9 @@ public class Processador {
         }
         return new Erro(false);
     }
+
     public static Erro analisadorSintatico(Queue<Token> filaFinal, Queue<Token> filaNterminais) {
-        
+
         if (!filaNterminais.isEmpty()) {
 
             HashMap<String, String> tabelaParsing = new HashMap<String, String>();
@@ -316,26 +311,25 @@ public class Processador {
                     filaFinal.poll();
 
                 } else {
-                    
+
                 }
             } else {
-                try{
-                    
-                
-                if (!tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
-                    List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, "" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
-                    filaNterminais.poll();
-                    aux.addAll(filaNterminais);
-                    filaNterminais.clear();
-                    filaNterminais.addAll(aux);
+                try {
 
-                } else if (tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
-                    filaNterminais.poll();
+                    if (!tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
+                        List<Token> aux = Token.analisaTabelaParsing(tabelaParsing, "" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod(), tabelaNaoTerminais, tabela);
+                        filaNterminais.poll();
+                        aux.addAll(filaNterminais);
+                        filaNterminais.clear();
+                        filaNterminais.addAll(aux);
 
-                } else {
-                    //return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
-                }
-                }catch(Exception e){
+                    } else if (tabelaParsing.get("" + filaNterminais.peek().getCod() + "," + filaFinal.peek().getCod()).equalsIgnoreCase("null")) {
+                        filaNterminais.poll();
+
+                    } else {
+                        //return new Erro(true, "Erro Sintático", filaFinal.peek().getLinha());
+                    }
+                } catch (Exception e) {
                     return new Erro(true, "Erro Sintático", tokenAnterior.getLinha());
                 }
 
@@ -346,43 +340,144 @@ public class Processador {
         return new Erro(false);
     }
 
-  //////////////////Analise Semantica 
-    public static Erro analisadorSemantico(Queue<Token> filaFinal){
+    //////////////////Analise Semantica 
+    public static Erro analisadorSemantico(Queue<Token> filaFinal) {
         HashMap<String, Simbolo> tabelaSimbolos = new HashMap<String, Simbolo>();
         int dclCategoria = 0;
         int nivel = 0;
+        
+        int vrfCategoria = 0;
+        
+        /////pega os identificadores declarados
         for (Token token : filaFinal) {
-            switch(token.getCod()){
-                case 2: dclCategoria = 1; break;
-                case 3: dclCategoria = 2; break;
-                case 4: dclCategoria = 3; break;
-                case 5: dclCategoria = 4; break;
-                
+            switch (token.getCod()) {
+                case 2:
+                    dclCategoria = 1;
+                    break;
+                case 3:
+                    dclCategoria = 2;
+                    break;
+                case 4:
+                    dclCategoria = 3;
+                    break;
+                case 5:
+                    dclCategoria = 4;
+                    break;
+
             }
-            if (token.getCod()==25) {
-                if (tabelaSimbolos.containsKey(token.getSimbolo())) {
-                    return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
-                }
-                switch(dclCategoria){
-                    case 1: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "LABEL", "", nivel)); break;
-                    case 2: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "CONST", "", nivel)); break;
-                    case 3: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "VAR", "INTEIRO", nivel)); break;
-                    case 4: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel)); dclCategoria = 5; nivel = 1; break;
-                    case 5: tabelaSimbolos.put(token.getSimbolo(), new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel));
+            if (token.getCod() == 25) {
+
+                switch (dclCategoria) {
+                    case 1:
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "LABEL", "", nivel).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "LABEL", "", nivel).toString(), new Simbolo(token.getSimbolo(), "LABEL", "", nivel));
+                        break;
+                    case 2:
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "CONST", "", nivel).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "CONST", "", nivel).toString(), new Simbolo(token.getSimbolo(), "CONST", "", nivel));
+                        break;
+                    case 3:
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "VAR", "INTEIRO", nivel).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "VAR", "INTEIRO", nivel).toString(), new Simbolo(token.getSimbolo(), "VAR", "INTEIRO", nivel));
+                        break;
+                    case 4:
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel).toString(), new Simbolo(token.getSimbolo(), "PROCEDURE", "", nivel));
+                        dclCategoria = 5;
+                        nivel = 1;
+                        break;
+                    case 5:
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel).toString(), new Simbolo(token.getSimbolo(), "PARAMETRO", "INTEIRO", nivel));
                 }
             }
-            if (token.getCod()==6) {
+            if (token.getCod() == 6) {
                 dclCategoria = 0;
             }
-            if (token.getCod()==7) {
-                nivel  = 0;
+            if (token.getCod() == 7) {
+                nivel = 0;
             }
         }
-        System.out.println(tabelaSimbolos.toString());
-        return null;
-        
+        for (String s : tabelaSimbolos.keySet()) {
+            System.out.println(s);
+        }
+        //////valida as variaveis
+        nivel = 0;
+        for (Token token : filaFinal) {
+            if (token.getCod()==5) {
+                vrfCategoria = 1;
+                nivel = 1;
+            }
+            if (vrfCategoria == 1) {
+                if (token.getCod()==6) {
+                    vrfCategoria =2;
+                }
+            }
+            if (vrfCategoria ==2) {
+                if (token.getCod()==25) {
+                    
+                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                        return new Erro(true, "Erro Semantico, simbolo não declarado( "+token.getSimbolo()+" )", token.getLinha());
+                        
+                    }
+                }
+                if (token.getCod()==7) {
+                    vrfCategoria = 4;
+                    nivel = 0;
+                }
+            }
+            if (vrfCategoria==4) {
+                if (token.getCod()==25) {
+                    
+                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                        return new Erro(true, "Erro Semantico, simbolo não declarado( "+token.getSimbolo()+" )", token.getLinha());
+                        
+                    }
+                }
+                if (token.getCod()==11) {
+                    vrfCategoria = 5;
+                }
+                if (token.getCod()==49) {
+                    
+                }
+            }
+            if (vrfCategoria == 5) {
+                if (token.getCod()==25) {
+                    
+                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                        return new Erro(true, "Erro Semantico, simbolo não declarado( "+token.getSimbolo()+" )", token.getLinha());
+                        
+                    }
+                }
+                if (token.getCod()==36) {
+                    nivel=1;
+                }
+                if(token.getCod()==37){
+                    nivel=0;
+                    vrfCategoria=4;
+                }
+            }
+            
+            
+
+        }
+
+        ///lista os tokens
+        for (String s : tabelaSimbolos.keySet()) {
+            System.out.println(s);
+        }
+        return new Erro();
+
     }
-    
-    
-    
+
 }

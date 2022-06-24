@@ -301,7 +301,7 @@ public class TelaPrincipal extends JFrame {
         processarSemantico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarSemantico.png")));
         processarSemantico.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt) {
-                Erro erro = Processador.analisadorSemantico(filaFinal);
+                    Erro erro = Processador.analisadorSemantico(filaFinal);
                     if (erro.isStatus()) {
                     JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE); 
                     }

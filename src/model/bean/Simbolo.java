@@ -50,9 +50,16 @@ public class Simbolo {
         this.nivel = nivel;
     }
 
+    public Simbolo(String nome, int nivel) {
+        this.nome = nome;
+        this.nivel = nivel;
+    }
+    
+   
+    
     @Override
     public String toString() {
-        return "Simbolo{" + "nome=" + nome + ", Categoria=" + Categoria + ", tipo=" + tipo + ", nivel=" + nivel + '}';
+        return "Simbolo{" + "nome=" + nome + ", nivel=" + nivel + '}';
     }
     
     

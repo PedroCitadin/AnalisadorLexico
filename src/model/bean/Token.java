@@ -434,7 +434,7 @@ public class Token {
     public static List<Token> analisaTabelaParsing(HashMap<String, String> token, String cods, HashMap<String, Integer> nTerminais, HashMap<String, Integer> terminais) {
         List<Token> lista = new ArrayList<Token>();
         String s = token.get(cods);
-        System.out.println(s);
+        
         String aux[] = s.split("&&");
 
         for (int i = 0; i < aux.length; i++) {
