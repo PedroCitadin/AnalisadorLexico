@@ -218,6 +218,7 @@ public class TelaPrincipal extends JFrame {
                 filaNTerminais.clear();
                 pilhaFinal.clear();
                 statusLexico = false;
+                filaFinalBackup.clear();
             }
         });
 
@@ -264,6 +265,7 @@ public class TelaPrincipal extends JFrame {
                 if (statusLexico) {
                     
                     if (!filaFinal.isEmpty()) {
+                        filaFinalBackup.clear();
                         filaFinalBackup.addAll(filaFinal);
                     while (!filaFinal.isEmpty()) {
                         if (filaNTerminais.isEmpty()) {

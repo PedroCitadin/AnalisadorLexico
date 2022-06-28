@@ -343,12 +343,14 @@ public class Processador {
     //////////////////Analise Semantica 
     public static Erro analisadorSemantico(Queue<Token> filaFinal) {
         HashMap<String, Simbolo> tabelaSimbolos = new HashMap<String, Simbolo>();
+        String pcAtual = "";
         int dclCategoria = 0;
         int nivel = 0;
         boolean temProcedure = false;
         int vrfCategoria = 0;
         Queue<Token> filaAux = new LinkedList<>();
         Queue<Token> filaAux2 = new LinkedList<>();
+        Stack<Simbolo> pilhaAux = new Stack<Simbolo>();
         int tipo = 0;
         filaAux.addAll(filaFinal);
 
@@ -379,15 +381,15 @@ public class Processador {
 
                 switch (dclCategoria) {
                     case 1:
-                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "LABEL", 0, nivel).toString())) {
-                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "LABEL", 0, nivel, pcAtual).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo"+"( "+token.getSimbolo() +" ) já foi declarado", token.getLinha());
                         }
-                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "LABEL", 0, nivel).toString(), new Simbolo(token.getSimbolo(), "LABEL", 0, nivel));
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "LABEL", 0, nivel).toString(), new Simbolo(token.getSimbolo(), "LABEL", 0, nivel, pcAtual));
                         break;
                     case 2:
 
                         if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "CONST", 0, nivel).toString())) {
-                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                            return new Erro(true, "Erro Semantico, simbolo"+"( "+token.getSimbolo() +" ) já foi declarado", token.getLinha());
                         }
                         filaAux2.poll();
                         if (filaAux2.peek().getCod() == 40) {
@@ -398,11 +400,11 @@ public class Processador {
                                 tipo = 48;
                             }
                         }
-                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "CONST", tipo, nivel).toString(), new Simbolo(token.getSimbolo(), "CONST", tipo, nivel));
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "CONST", tipo, nivel, pcAtual).toString(), new Simbolo(token.getSimbolo(), "CONST", tipo, nivel, pcAtual));
                         break;
                     case 3:
-                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "VAR", tipo, nivel).toString())) {
-                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "VAR", tipo, nivel, pcAtual).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo"+"( "+token.getSimbolo() +" ) já foi declarado", token.getLinha());
                         }
                         filaAux2.poll();
                         if (filaAux2.peek().getCod() == 39) {
@@ -440,22 +442,58 @@ public class Processador {
                             }
                         }
 
-                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "VAR", tipo, nivel).toString(), new Simbolo(token.getSimbolo(), "VAR", tipo, nivel));
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "VAR", tipo, nivel, pcAtual).toString(), new Simbolo(token.getSimbolo(), "VAR", tipo, nivel, pcAtual));
                         break;
                     case 4:
                         if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PROCEDURE", 0, nivel).toString())) {
-                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                            return new Erro(true, "Erro Semantico, simbolo"+"( "+token.getSimbolo() +" ) já foi declarado", token.getLinha());
                         }
                         temProcedure = true;
                         tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PROCEDURE", 0, nivel).toString(), new Simbolo(token.getSimbolo(), "PROCEDURE", 0, nivel));
+                        pcAtual = token.getSimbolo();
                         dclCategoria = 5;
                         nivel = 1;
                         break;
                     case 5:
-                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel).toString())) {
-                            return new Erro(true, "Erro Semantico, simbolo já foi declarado", token.getLinha());
+                        if (tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel, pcAtual).toString())) {
+                            return new Erro(true, "Erro Semantico, simbolo"+"( "+token.getSimbolo() +" ) já foi declarado", token.getLinha());
                         }
-                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel).toString(), new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel));
+                        filaAux2.poll();
+                        if (filaAux2.peek().getCod() == 39) {
+                            filaAux2.poll();
+                            if (filaAux2.peek().getCod() != 9) {
+                                tipo = filaAux2.peek().getCod();
+                            } else {
+                                while (filaAux2.peek().getCod() != 10) {
+                                    filaAux2.poll();
+                                }
+                                if (filaAux2.peek().getCod() == 10) {
+                                    filaAux2.poll();
+                                    tipo = filaAux2.peek().getCod();
+                                }
+                            }
+                        } else {
+                            while (filaAux2.peek().getCod() != 39) {
+                                filaAux2.poll().getCod();
+
+                            }
+                            if (filaAux2.peek().getCod() == 39) {
+                                filaAux2.poll();
+                                if (filaAux2.peek().getCod() != 9) {
+                                    tipo = filaAux2.peek().getCod();
+                                } else {
+                                    while (filaAux2.peek().getCod() != 10) {
+                                        filaAux2.poll();
+                                    }
+                                    if (filaAux2.peek().getCod() == 10) {
+                                        filaAux2.poll();
+                                        tipo = filaAux2.peek().getCod();
+                                    }
+                                }
+
+                            }
+                        }
+                        tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel, pcAtual).toString(), new Simbolo(token.getSimbolo(), "PARAMETRO", tipo, nivel, pcAtual));
                         break;
                     case 6:
                         tabelaSimbolos.put(new Simbolo(token.getSimbolo(), "PROGRAMA", 0, nivel).toString(), new Simbolo(token.getSimbolo(), "PROGRAMA", 0, nivel));
@@ -468,76 +506,133 @@ public class Processador {
             }
             if (token.getCod() == 7) {
                 nivel = 0;
+                pcAtual = "";
             }
             filaAux.poll();
         }
-
+        for (Simbolo s : tabelaSimbolos.values()) {
+            System.out.println(s.toString());
+        }
         //////valida as variaveis
         nivel = 0;
+        List<String> listaFeitos = new ArrayList<String>();
         for (Token token : filaFinal) {
+            ///verifica a existencia de um procedure no código
             if (!temProcedure) {
+
+                //caso não exista o programa vai direto para a categoria 4
                 vrfCategoria = 4;
             }
+
+            ////verifica se o token é um procedure
             if (token.getCod() == 5) {
-                vrfCategoria = 1;
+                //////o programa vai a para a categoria 1 e para o nivel 1
+                
+                vrfCategoria = 22;
                 nivel = 1;
             }
+            ///pega o identificado do procedure atual
+            if (vrfCategoria==22) {
+                if (token.getCod() == 25) {
+                    pcAtual=token.getSimbolo();
+                    vrfCategoria =1;
+                }
+            }
             if (vrfCategoria == 1) {
+                ////verifica o inicio do procedure
                 if (token.getCod() == 6) {
+                    
                     vrfCategoria = 2;
                 }
             }
             if (vrfCategoria == 2) {
                 if (token.getCod() == 25) {
-
-                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                    ///verifica se os identificadores foram declarados corretamente dentro do procedure
+                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel, pcAtual).toString())) {
                         return new Erro(true, "Erro Semantico, simbolo não declarado( " + token.getSimbolo() + " )", token.getLinha());
 
                     }
                 }
+
                 if (token.getCod() == 7) {
+                    ///// quando o end do procedure for identificado o programa vai para a categoria 4 e o nivel retorna para 0
                     vrfCategoria = 4;
                     nivel = 0;
+                    pcAtual = "";
+                   
                 }
             }
             if (vrfCategoria == 4) {
                 if (token.getCod() == 25) {
-
-                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                    //// verifica se os identificadores foram declarados corretamente dentro do classe principal
+                        
+                    if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel, pcAtual).toString())) {
+                        
                         return new Erro(true, "Erro Semantico, simbolo não declarado( " + token.getSimbolo() + " )", token.getLinha());
 
                     }
                 }
+
+                ////quando um procedimento é chamado com call a categoria 5 é acionada 
                 if (token.getCod() == 11) {
                     vrfCategoria = 5;
                 }
-                if (token.getCod() == 49) {
 
-                }
             }
             if (vrfCategoria == 5) {
+                ///// verifica se o procedimento foi chamado corretamente
                 if (token.getCod() == 25) {
 
                     if (!tabelaSimbolos.containsKey(new Simbolo(token.getSimbolo(), nivel).toString())) {
                         return new Erro(true, "Erro Semantico, simbolo não declarado( " + token.getSimbolo() + " )", token.getLinha());
 
+                    } else {
+                        pcAtual = token.getSimbolo();
                     }
                 }
                 if (token.getCod() == 36) {
                     nivel = 1;
+                    vrfCategoria = 6;
+                }
+
+            }
+            if (vrfCategoria == 6) {
+                
+                ///verifica os se os parametros são do tipo dos que foram declarados
+                if (token.getCod() == 26 || token.getCod() == 25 || token.getCod() == 48) {
+
+                    for (Simbolo sim : tabelaSimbolos.values()) {
+                        if (sim.getPai().equalsIgnoreCase(pcAtual) && !listaFeitos.contains(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                            
+                            pilhaAux.add(sim);
+                        }
+                    }
+                    listaFeitos.add(new Simbolo(token.getSimbolo(), nivel).toString());
+                    if (token.getCod()==25) {
+                        if (pilhaAux.peek().getTipo() != tabelaSimbolos.get(new Simbolo(token.getSimbolo(), 0).toString()).getTipo()) {
+                        System.out.println(Simbolo.converte(token.getCod()));
+                        return new Erro(true, "Erro Semantico, parametro não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                    }
+                    
+                    }else {
+                        if (pilhaAux.peek().getTipo() != Simbolo.converte(token.getCod())) {
+                        System.out.println(Simbolo.converte(token.getCod()));
+                        return new Erro(true, "Erro Semantico, parametro não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                    }
+
+                    }  
                 }
                 if (token.getCod() == 37) {
-                    nivel = 0;
-                    vrfCategoria = 4;
-                }
+                        
+                        listaFeitos.clear();
+                        nivel = 0;
+                        vrfCategoria = 4;
+                        pilhaAux.clear();
+                        pcAtual = "";
+                    }
             }
-
         }
         /////valida atribuições e operações
-        for (Simbolo s : tabelaSimbolos.values()) {
-            System.out.println(s.retorno());
-        }
-
         filaAux.clear();
         filaAux.addAll(filaFinal);
         Stack<Token> pilhaAuxiliar = new Stack<Token>();
@@ -556,19 +651,54 @@ public class Processador {
             if (token.getCod() == 25) {
 
                 if (tabelaSimbolos.getOrDefault(new Simbolo(token.getSimbolo(), nivel).toString(), new Simbolo(null, 0)).getCategoria().equalsIgnoreCase("VAR")) {
-                    filaAux2.poll();
+
                     if (filaAux2.peek().getCod() == 38) {
                         filaAux2.poll();
-                        while (filaAux2.peek().getCod() != 47&&filaAux2.peek().getCod()!=28) {
+                        while (filaAux2.peek().getCod() != 47 && filaAux2.peek().getCod() != 28) {
                             pilhaAuxiliar.add(filaAux2.poll());
                         }
                         for (Token t : pilhaAuxiliar) {
 
-                            if (t.getCod()==25) {
+                            if (t.getCod() == 25) {
                                 if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != tabelaSimbolos.get(new Simbolo(t.getSimbolo(), nivel).toString()).getTipo()) {
                                     return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
                                 }
-                            }else if(!Token.operadoresAritimeticos().contains(t.getSimbolo())&&!Token.operadoresRelacionais().contains(t.getSimbolo())){
+                            } else if (!Token.operadoresAritimeticos().contains(t.getSimbolo()) && !Token.operadoresRelacionais().contains(t.getSimbolo())) {
+                                if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != Simbolo.converte(t.getCod())) {
+                                    return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                                }
+                            }
+                        }
+                    } else {
+                        if (Token.operadoresRelacionais().contains(filaAux2.peek().getSimbolo()) || Token.operadoresAritimeticos().contains(filaAux2.peek().getSimbolo())) {
+                            while (!Token.simbolosDelimitadores().contains(filaAux2.peek().getSimbolo()) && !Token.palavrasReservadas().contains(filaAux2.peek().getSimbolo())) {
+                                pilhaAuxiliar.add(filaAux2.poll());
+                            }
+                            for (Token t : pilhaAuxiliar) {
+                                if (t.getCod() == 25) {
+                                    if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != tabelaSimbolos.get(new Simbolo(t.getSimbolo(), nivel).toString()).getTipo()) {
+                                        return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                                    }
+                                } else if (!Token.operadoresAritimeticos().contains(t.getSimbolo()) && !Token.operadoresRelacionais().contains(t.getSimbolo())) {
+                                    if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != Simbolo.converte(t.getCod())) {
+                                        return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else if (tabelaSimbolos.getOrDefault(new Simbolo(token.getSimbolo(), nivel).toString(), new Simbolo(null, 0)).getCategoria().equalsIgnoreCase("CONST")) {
+                    filaAux2.poll();
+                    if (Token.operadoresRelacionais().contains(filaAux2.peek().getSimbolo()) || Token.operadoresAritimeticos().contains(filaAux2.peek().getSimbolo())) {
+                        while (!Token.simbolosDelimitadores().contains(filaAux2.peek().getSimbolo()) && !Token.palavrasReservadas().contains(filaAux2.peek().getSimbolo())) {
+                            pilhaAuxiliar.add(filaAux2.poll());
+                        }
+                        for (Token t : pilhaAuxiliar) {
+                            if (t.getCod() == 25) {
+                                if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != tabelaSimbolos.get(new Simbolo(t.getSimbolo(), nivel).toString()).getTipo()) {
+                                    return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
+                                }
+                            } else if (!Token.operadoresAritimeticos().contains(t.getSimbolo()) && !Token.operadoresRelacionais().contains(t.getSimbolo())) {
                                 if (tabelaSimbolos.get(new Simbolo(token.getSimbolo(), nivel).toString()).getTipo() != Simbolo.converte(t.getCod())) {
                                     return new Erro(true, "Erro Semantico, simbolo não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
                                 }
