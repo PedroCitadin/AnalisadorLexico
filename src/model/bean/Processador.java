@@ -353,7 +353,7 @@ public class Processador {
         Stack<Simbolo> pilhaAux = new Stack<Simbolo>();
         int tipo = 0;
         filaAux.addAll(filaFinal);
-
+        
         /////pega os identificadores declarados
         for (Token token : filaFinal) {
             tipo = 0;
@@ -375,7 +375,6 @@ public class Processador {
                 case 1:
                     dclCategoria = 6;
                     break;
-
             }
             if (token.getCod() == 25) {
 
@@ -600,29 +599,33 @@ public class Processador {
                 
                 ///verifica os se os parametros são do tipo dos que foram declarados
                 if (token.getCod() == 26 || token.getCod() == 25 || token.getCod() == 48) {
-
+                    
                     for (Simbolo sim : tabelaSimbolos.values()) {
-                        if (sim.getPai().equalsIgnoreCase(pcAtual) && !listaFeitos.contains(new Simbolo(token.getSimbolo(), nivel).toString())) {
+                        if (sim.getPai().equalsIgnoreCase(pcAtual) && !listaFeitos.contains(new Simbolo(token.getSimbolo(), nivel).toString()) && sim.getCategoria().equalsIgnoreCase("PARAMETRO")) {
                             
                             pilhaAux.add(sim);
                         }
                     }
+                    
                     listaFeitos.add(new Simbolo(token.getSimbolo(), nivel).toString());
                     if (token.getCod()==25) {
                         if (pilhaAux.peek().getTipo() != tabelaSimbolos.get(new Simbolo(token.getSimbolo(), 0).toString()).getTipo()) {
-                        System.out.println(Simbolo.converte(token.getCod()));
+                        
                         return new Erro(true, "Erro Semantico, parametro não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
                     }
                     
                     }else {
                         if (pilhaAux.peek().getTipo() != Simbolo.converte(token.getCod())) {
-                        System.out.println(Simbolo.converte(token.getCod()));
+                        
                         return new Erro(true, "Erro Semantico, parametro não corresponde ao tipo( " + token.getSimbolo() + " )", token.getLinha());
                     }
-
+                        
                     }  
                 }
+                
                 if (token.getCod() == 37) {
+                    
+                        
                         
                         listaFeitos.clear();
                         nivel = 0;

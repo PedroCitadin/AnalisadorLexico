@@ -59,6 +59,7 @@ public class TelaPrincipal extends JFrame {
 
     private Token tokens;
     private boolean statusLexico;
+    private boolean statusSintatico;
     private Arquivo arq;
     private List<String> linhas;
     private Queue<Token> filaFinal;
@@ -84,6 +85,7 @@ public class TelaPrincipal extends JFrame {
         filaFinalBackup = new LinkedList<>();
         filaNTerminais = new LinkedList<>();
         statusLexico = false;
+        statusSintatico = false;
         linhas = new ArrayList<String>();
         fc = new JFileChooser();
         fc.setMultiSelectionEnabled(false);
@@ -252,7 +254,7 @@ public class TelaPrincipal extends JFrame {
                     statusLexico = true;
                 } else {
                     ttm.limpar();
-                    JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -262,60 +264,70 @@ public class TelaPrincipal extends JFrame {
         processarSintatico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processaPasso.png")));
         processarSintatico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                boolean erroTotal = false;
                 if (statusLexico) {
-                    
+
                     if (!filaFinal.isEmpty()) {
                         filaFinalBackup.clear();
                         filaFinalBackup.addAll(filaFinal);
-                    while (!filaFinal.isEmpty()) {
-                        if (filaNTerminais.isEmpty()) {
-                            filaNTerminais.add(new Token(52, "PROGRAMA"));
-                        }
-                        HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
+                        while (!filaFinal.isEmpty()) {
+                            if (filaNTerminais.isEmpty()) {
+                                filaNTerminais.add(new Token(52, "PROGRAMA"));
+                            }
+                            HashMap<String, Integer> tabelaNT = new HashMap<String, Integer>();
 
-                        Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
-                        if (erro.isStatus()) {
-                            JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
-                        ttm.limpar();
-                        for (Token t : filaFinal) {
-                            ttm.addToken(t);
-                        }
-                        tabelaTokens.setModel(ttm);
+                            Erro erro = Processador.analisadorSintatico(filaFinal, filaNTerminais);
+                            if (erro.isStatus()) {
+                                JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro", JOptionPane.ERROR_MESSAGE);
+                                erroTotal = true;
+                                break;
 
-                        ttm2.limpar();
-                        for (Token t : filaNTerminais) {
-                            ttm2.addToken(t);
+                            }
+                            ttm.limpar();
+                            for (Token t : filaFinal) {
+                                ttm.addToken(t);
+                            }
+                            tabelaTokens.setModel(ttm);
+
+                            ttm2.limpar();
+                            for (Token t : filaNTerminais) {
+                                ttm2.addToken(t);
+                            }
+                            tabelaTokensNaoTerminais.setModel(ttm2);
                         }
-                        tabelaTokensNaoTerminais.setModel(ttm2);
+
+                    } else {
+                        JOptionPane.showConfirmDialog(rootPane, "Analise Sintática já feita!");
                     }
-
+                    if (!erroTotal) {
+                        statusSintatico = true;
+                    }
                 } else {
-                    JOptionPane.showConfirmDialog(rootPane, "Analise Sintática já feita!");
+                    JOptionPane.showMessageDialog(rootPane, "É preciso fazer a analise Léxica primeiro!","Erro", JOptionPane.INFORMATION_MESSAGE);
                 }
-                }else{
-                    JOptionPane.showConfirmDialog(rootPane, "É preciso fazer a analise Léxica primeiro!");
-                }
-                    
+
             }
         });
 
         processarSemantico = new JButton();
         processarSemantico.setPreferredSize(new Dimension(50, 50));
         processarSemantico.setIcon(new ImageIcon(getClass().getResource("/model/imagens/processarSemantico.png")));
-        processarSemantico.addActionListener(new ActionListener(){
+        processarSemantico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
+                if (statusSintatico) {
                     filaFinal.addAll(filaFinalBackup);
                     Erro erro = Processador.analisadorSemantico(filaFinal);
                     if (erro.isStatus()) {
-                    JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro",  JOptionPane.ERROR_MESSAGE); 
-                    }else{
-                       JOptionPane.showMessageDialog(rootPane, "Programa OK!","Sucesso",  JOptionPane.INFORMATION_MESSAGE); 
+                        JOptionPane.showMessageDialog(rootPane, erro.getCausa() + " na linha: " + erro.getLinha(), "Erro", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(rootPane, "Programa OK!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     }
+                }else{
+                     JOptionPane.showMessageDialog(rootPane, "É preciso fazer a analise Sintárica primeiro!", "Erro", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         });
-        
+
         barraMenu.add(novoArquivo);
         barraMenu.add(carregarArquivo);
         barraMenu.add(salvarArquivo);
